@@ -21,17 +21,21 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 3.1.302
+          dotnet-version: 3.1.x
           
       - name: Build App
         run: dotnet build frontend/frontend.csproj -c Release --nologo
+      - name: Build function
+        run: dotnet build function/api.csproj -c Release --nologo
       - name: Publish App
         run: dotnet publish frontend/frontend.csproj -c Release -o published/frontend --nologo
+      - name: Publish function
+        run: dotnet publish function/api.csproj -c Release -o published/function --nologo
       - name: Publish artifacts
         uses: actions/upload-artifact@master
         with:
           name: webapp
-          path: published/frontend
+          path: published
           
       - name: Build And Deploy
         id: builddeploy
@@ -43,7 +47,7 @@ jobs:
           ###### Repository/Build Configurations - These values can be configured to match you app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
           app_location: "/published/frontend/wwwroot" # App source code path
-          api_location: "" # Api source code path - optional
+          api_location: "/published/function" # Api source code path - optional
           app_artifact_location: "/published/frontend/wwwroot" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
 
