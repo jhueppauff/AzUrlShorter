@@ -1,0 +1,33 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "name": {
+            "value": "swap-urlshorter-dev-we-001"
+        },
+        "location": {
+            "value": "westeurope"
+        },
+        "sku": {
+            "value": "Free"
+        },
+        "skucode": {
+            "value": "Free"
+        },
+        "repositoryUrl": {
+            "value": "https://github.com/jhueppauff/AzUrlShorter"
+        },
+        "branch": {
+            "value": "master"
+        },
+        "appLocation": {
+            "value": "/frontend"
+        },
+        "apiLocation": {
+            "value": " /function "
+        },
+        "appArtifactLocation": {
+            "value": ""
+        }
+    }
+}
