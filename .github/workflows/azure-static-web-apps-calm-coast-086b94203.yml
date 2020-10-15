@@ -24,9 +24,9 @@ jobs:
           dotnet-version: 3.1.302
           
       - name: Build App
-        run: dotnet build Frontend/Frontend.csproj -c Release --nologo
+        run: dotnet build frontend/frontend.csproj -c Release --nologo
       - name: Publish App
-        run: dotnet publish Frontend/Frontend.csproj -c Release -o published/Frontend --nologo
+        run: dotnet publish frontend/frontend.csproj -c Release -o published/frontend --nologo
       - name: Publish artifacts
         uses: actions/upload-artifact@master
         with:
