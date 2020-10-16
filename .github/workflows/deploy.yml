@@ -37,3 +37,4 @@ jobs:
         resourceGroupName: ${{ secrets.AZURE_ResourceGroupName }}
         template: ./template/static-webapp.json
         parameters: ./template/static-webapp.parameters.json repositoryToken=${{ secrets.AUTHTOKEN }}
+        deploymentName: GitHubDeployment-${{ env.VERSION }}
