@@ -21,7 +21,7 @@
             "value": "main"
         },
         "appLocation": {
-            "value": "/frontend"
+            "value": "/published/Frontend/wwwroot"
         },
         "apiLocation": {
             "value": " /function "
