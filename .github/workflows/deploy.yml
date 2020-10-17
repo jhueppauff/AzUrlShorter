@@ -38,4 +38,3 @@ jobs:
         template: ./template/resources.json
         parameters: ./template/resources.parameters.json repositoryToken=${{ secrets.AUTHTOKEN }}
         deploymentName: GitHubDeployment-${{ github.run_id }}
-        deploymentMode: Complete
