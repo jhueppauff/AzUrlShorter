@@ -90,7 +90,7 @@
             "apiVersion": "2020-04-15",
             "name": "[parameters('profileName')]",
             "location": "Global",
-            "sku": "[parameters('sku')]",
+            "sku": "[parameters('CDNSku')]",
             "properties": "[parameters('profileProperties')]",
             "type": "microsoft.cdn/profiles"
         },
