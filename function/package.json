@@ -4,6 +4,7 @@
   "description": "",
   "scripts": {
     "build": "tsc",
+    "build:production": "npm run prestart && npm prune --production",
     "watch": "tsc -w",
     "prestart": "npm run build",
     "start": "func start",
