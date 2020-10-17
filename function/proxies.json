@@ -3,7 +3,7 @@
   "proxies": {
     "Domain Redirect": {
       "matchCondition": {
-        "route": "/r/{shortUrl}",
+        "route": "/{shortUrl}",
         "methods": ["GET"]
       },
       "backendUri": "http://%WEBSITE_HOSTNAME%/api/Redirect/{shortUrl}"
