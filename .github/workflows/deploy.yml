@@ -16,8 +16,7 @@ on:
 
 env:
   DOTNET_VERSION: '3.1.302'  
-  
-  
+   
   
 jobs:
   build-and-deploy:
@@ -38,15 +37,11 @@ jobs:
         template: ./template/resources.json
         parameters: ./template/resources.parameters.json repositoryToken=${{ secrets.AUTHTOKEN }}
         deploymentName: GitHubDeployment-${{ github.run_id }}
-
-    - run: npm install --prefix ./function
-    - run: npm run build:production --if-present --prefix ./function
-
-
-    - name: Azure Functions Action
-      uses: Azure/functions-action@v1.1.5
-      with:
-        # Name of the Azure Function App
-        app-name: 'func-urlshorter-dev-we-001'
-        package: ./function
-        
+    
+    - run: npm install -g azure-functions-core-tools
+    - run: npm install 
+      working-directory: ./function
+    - run: npm run build:production --if-present
+      working-directory: ./function
+    - run: func  azure functionapp publish func-urlshorter-dev-we-001
+      working-directory: ./function
