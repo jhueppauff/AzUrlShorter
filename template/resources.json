@@ -64,6 +64,21 @@
         },
         "numberOfWorkers": {
             "type": "string"
+        },
+        "profileName": {
+            "type": "string"
+        },
+        "endpointName": {
+            "type": "string"
+        },
+        "CDNSku": {
+            "type": "object"
+        },
+        "profileProperties": {
+            "type": "object"
+        },
+        "endpointProperties": {
+            "type": "object"
         }
     },
     "variables" : {
@@ -71,6 +86,24 @@
         "applicationInsightsName" : "[replace(parameters('functionName'), 'func', 'appi')]"
     },
     "resources": [
+        {
+            "apiVersion": "2020-04-15",
+            "name": "[parameters('profileName')]",
+            "location": "Global",
+            "sku": "[parameters('sku')]",
+            "properties": "[parameters('profileProperties')]",
+            "type": "microsoft.cdn/profiles"
+        },
+        {
+            "apiVersion": "2020-04-15",
+            "dependsOn": [
+                "[concat('Microsoft.Cdn/profiles/', parameters('profileName'))]"
+            ],
+            "name": "[concat(parameters('profileName'),'/',parameters('endpointName'))]",
+            "location": "Global",
+            "properties": "[parameters('endpointProperties')]",
+            "type": "microsoft.cdn/profiles/endpoints"
+        },
         {
             "apiVersion": "2019-12-01-preview",
             "name": "[parameters('staticWebAppName')]",
