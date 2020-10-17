@@ -17,6 +17,9 @@
         "appArtifactLocation": {
             "type": "string"
         },
+        "appLocation" : {
+            "type" : "string"
+        },
         "repositoryToken": {
             "type": "securestring"
         },
@@ -79,7 +82,7 @@
                 "branch": "[parameters('branch')]",
                 "repositoryToken": "[parameters('repositoryToken')]",
                 "buildProperties": {
-                    "appLocation": "[resourceGroup().location]",
+                    "appLocation": "[parameters('appLocation')]",
                     "apiLocation": "[parameters('apiLocation')]",
                     "appArtifactLocation": "[parameters('appArtifactLocation')]"
                 }
