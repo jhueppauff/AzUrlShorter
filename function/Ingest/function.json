@@ -1,0 +1,26 @@
+{
+  "bindings": [
+    {
+      "authLevel": "function",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": [
+        "post"
+      ]
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "res"
+    },
+    {
+      "name" : "shortUrl",
+      "type": "table",
+      "tableName": "shorturls",
+      "connection": "AzureStorageConnection",
+      "direction": "out"
+    }
+  ],
+  "scriptFile": "../dist/Ingest/index.js"
+}

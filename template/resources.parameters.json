@@ -1,0 +1,66 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "staticWebAppName": {
+            "value": "swap-urlshorter-dev-we-001"
+        },
+        "functionName": {
+            "value": "func-urlshorter-dev-we-001"
+        },
+        "storageAccountName": {
+            "value": "sturlshorterdevweu001"
+        },
+        "accountType": {
+            "value": "Standard_RAGRS"
+        },
+        "kind": {
+            "value": "StorageV2"
+        },
+        "accessTier": {
+            "value": "Hot"
+        },
+        "minimumTlsVersion": {
+            "value": "TLS1_2"
+        },
+        "supportsHttpsTrafficOnly": {
+            "value": true
+        },
+        "sku": {
+            "value": "Dynamic"
+        },
+        "skuCode": {
+            "value": "Y1"
+        },
+        "workerSize": {
+            "value": "0"
+        },
+        "workerSizeId": {
+            "value": "0"
+        },
+        "numberOfWorkers": {
+            "value": "1"
+        },
+        "use32BitWorkerProcess": {
+            "value": false
+        },
+        "linuxFxVersion": {
+            "value": "Node|12"
+        },
+        "repositoryUrl": {
+            "value": "https://github.com/jhueppauff/AzUrlShorter"
+        },
+        "branch": {
+            "value": "main"
+        },
+        "appLocation": {
+            "value": "/published/Frontend/wwwroot"
+        },
+        "apiLocation": {
+            "value": "/published/frontend/wwwroot"
+        },
+        "appArtifactLocation": {
+            "value": ""
+        }
+    }
+}
