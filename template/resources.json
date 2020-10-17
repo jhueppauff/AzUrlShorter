@@ -138,7 +138,8 @@
             "location": "[resourceGroup().location]",
             "tags": {},
             "dependsOn": [
-                "microsoft.insights/components/func-urlshorter-dev-weu-001",
+                "[variables('applicationInsightsName')]",
+                "[parameters('storageAccountName')]",
                 "[concat('Microsoft.Web/serverfarms/', variables('hostingPlanName'))]"
             ],
             "properties": {
