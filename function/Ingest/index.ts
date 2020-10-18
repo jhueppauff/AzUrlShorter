@@ -1,5 +1,4 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions"
-import rp = require('request-promise');
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
     context.log('Ingest function processed a request by ' + req.headers['x-ms-client-principal-name']);
@@ -13,11 +12,12 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
 
     let url:string = req.body.url;
     let shortUrl:string = req.body.shortUrl;
+    let domain:string = req.body.domain
 
     context.bindings.shortUrl = [];
     context.bindings.shortUrl.push({
         PartitionKey: shortUrl,
-        RowKey: 1,
+        RowKey: domain,
         Url: url, 
         User: req.headers['x-ms-client-principal-name']
     });

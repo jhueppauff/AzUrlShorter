@@ -6,54 +6,60 @@
 <h1>Create a new short URL!</h1>
 
 <form class="form-horizontal">
-<fieldset>
+  <fieldset>
 
 
-<!-- Text input-->
-<div class="form-group">
-  <div class="col-md-4">
-  <input id="Url" name="Url" type="text" placeholder="https://bing.com" @bind="Url" class="form-control input-md" required="">
-  </div>
-</div>
-
-<!-- Button Drop Down -->
-<div class="col-md-4 control-label">
-  <div class="input-group mb-3">
-    <div class="input-group-prepend">
-      <select class="form-control select2bs4" name="shortUrlDomain" @bind="Domain" id="shortUrlDomain" style="width: 100%">
-        <option value="https://go.hueppauff.com/">https://go.hueppauff.com/</option>
-        <option value="https://shortit.eu/">https://shortit.eu/</option>
-        <option value="https://shrt.hppff.systems/">https://shrt.hppff.systems/</option>
-      </select>
+    <!-- Text input-->
+    <div class="form-group">
+      <div class="col-md-4">
+        <input id="Url" name="Url" type="text" placeholder="https://bing.com" @bind="Url" class="form-control input-md"
+required="">
+      </div>
     </div>
-    	<input type="text" name="shortUrl" class="form-control" @bind="ShortUrl" placeholder="shrt">
+
+    <!-- Button Drop Down -->
+    <div class="col-md-4 control-label">
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <select class="form-control select2bs4" name="shortUrlDomain" @bind="Domain" id="shortUrlDomain"
+style="width: 100%">
+            <option disabled selected value> -- select an option -- </option>
+            <option value="go.hueppauff.com">https://go.hueppauff.com/</option>
+            <option value="shortit.eu">https://shortit.eu/</option>
+            <option value="shrt.hppff.systems">https://shrt.hppff.systems/</option>
+          </select>
+        </div>
+        <input type="text" name="shortUrl" class="form-control" @bind="ShortUrl" placeholder="shrt">
+      </div>
     </div>
-</div>
 
-<!-- Button -->
-<div class="form-group">
-  <div class="col-md-4">
-    <a id="create" name="create" class="btn btn-success" @onclick="CreateShortUrlAsync">Create</a>
-  </div>
-</div>
+    <!-- Button -->
+    <div class="form-group">
+      <div class="col-md-4">
+        <a id="create" name="create" class="btn btn-success" @onclick="CreateShortUrlAsync">Create</a>
+      </div>
+    </div>
 
-</fieldset>
+  </fieldset>
 </form>
 
 @code {
-    private string Url;
-    private string ShortUrl;
-    private string Domain;
+  private string Url;
+  private string ShortUrl;
+  private string Domain;
 
-    public async Task CreateShortUrlAsync() 
+  public async Task CreateShortUrlAsync()
+  {
+    if (Url != null && ShortUrl != null && Domain != null)
     {
-        ShortUrlRequest request = new ShortUrlRequest() 
-        {
-            Url = this.Url,
-            ShortUrl = this.ShortUrl,
-            Domain = this.Domain
-        };
+      ShortUrlRequest request = new ShortUrlRequest()
+      {
+        Url = this.Url,
+        ShortUrl = this.ShortUrl,
+        Domain = this.Domain
+      };
 
-        await Http.PostAsJsonAsync("/api/Ingest/", request).ConfigureAwait(false);
+      await Http.PostAsJsonAsync("/api/Ingest/", request).ConfigureAwait(false);
     }
+  }
 }
