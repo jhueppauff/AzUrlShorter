@@ -155,6 +155,22 @@
                     "dependsOn": [
                         "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
                     ]
+                },
+                {
+                    "name": "[concat('default/', 'domains')]",
+                    "type": "tableServices/tables",
+                    "apiVersion": "2019-06-01",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                    ]
+                },
+                {
+                    "name": "[concat('default/', 'users')]",
+                    "type": "tableServices/tables",
+                    "apiVersion": "2019-06-01",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                    ]
                 }
             ],
             "sku": {
