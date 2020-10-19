@@ -157,7 +157,7 @@
                     ]
                 },
                 {
-                    "name": "[concat('default/', 'domains')]",
+                    "name": "[concat('default/', 'configuration')]",
                     "type": "tableServices/tables",
                     "apiVersion": "2019-06-01",
                     "dependsOn": [
