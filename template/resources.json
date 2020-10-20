@@ -2,8 +2,8 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "staticWebAppName" : {
-            "type" : "string"
+        "staticWebAppName": {
+            "type": "string"
         },
         "repositoryUrl": {
             "type": "string"
@@ -17,8 +17,8 @@
         "appArtifactLocation": {
             "type": "string"
         },
-        "appLocation" : {
-            "type" : "string"
+        "appLocation": {
+            "type": "string"
         },
         "repositoryToken": {
             "type": "securestring"
@@ -81,9 +81,9 @@
             "type": "object"
         }
     },
-    "variables" : {
+    "variables": {
         "hostingPlanName": "[replace(parameters('functionName'), 'func', 'plan')]",
-        "applicationInsightsName" : "[replace(parameters('functionName'), 'func', 'appi')]"
+        "applicationInsightsName": "[replace(parameters('functionName'), 'func', 'appi')]"
     },
     "resources": [
         {
@@ -216,8 +216,8 @@
                             "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
                         },
                         {
-                            "name" : "AzureStorageConnection",
-                            "value" : "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+                            "name": "AzureStorageConnection",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
                         }
                     ],
                     "use32BitWorkerProcess": "[parameters('use32BitWorkerProcess')]",
@@ -226,6 +226,25 @@
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', variables('hostingPlanName'))]",
                 "clientAffinityEnabled": false
             }
+        },
+        {
+            "comments": "CORS allow origins *.",
+            "type": "Microsoft.Web/sites/config",
+            "name": "[concat(parameters('functionName'), '/web')]",
+            "apiVersion": "2016-08-01",
+            "properties": {
+                "cors": {
+                    "allowedOrigins": [
+                        "https://functions.azure.com",
+                        "https://functions-staging.azure.com",
+                        "https://functions-next.azure.com",
+                        "https://shorter.apps.hueppauff.com"
+                    ]
+                }
+            },
+            "dependsOn": [
+                "[parameters('functionName')]"
+            ]
         },
         {
             "apiVersion": "2018-11-01",
