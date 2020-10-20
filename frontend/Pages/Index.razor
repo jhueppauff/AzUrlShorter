@@ -24,15 +24,23 @@ required="">
           <select class="form-control select2bs4" name="shortUrlDomain" @bind="Domain" id="shortUrlDomain"
 style="width: 100%">
             <option disabled selected value> -- select an option -- </option>
-            <option value="go.hueppauff.com">https://go.hueppauff.com/</option>
-            <option value="shortit.eu">https://shortit.eu/</option>
-            <option value="shrt.hppff.systems">https://shrt.hppff.systems/</option>
+            @if (Domains != null)
+            {
+              @foreach (var domain in Domains)
+              {
+                <option value="@domain.RowKey">@domain.Domain</option>
+              }
+
+            }
+            else
+            {
+              <option value="">Loading</option>
+            }
           </select>
         </div>
         <input type="text" name="shortUrl" class="form-control" @bind="ShortUrl" placeholder="shrt">
       </div>
     </div>
-
     <!-- Button -->
     <div class="form-group">
       <div class="col-md-4">
@@ -43,10 +51,27 @@ style="width: 100%">
   </fieldset>
 </form>
 
+@if (ErrorMessage != string.Empty)
+{
+  <div class="alert alert-danger" role="alert">
+    @ErrorMessage
+  </div>
+}
+
+
 @code {
   private string Url;
   private string ShortUrl;
   private string Domain;
+
+  private string ErrorMessage = string.Empty;
+
+  private List<DomainObject> Domains;
+
+  protected override async Task OnInitializedAsync()
+  {
+    Domains = await Http.GetFromJsonAsync<List<DomainObject>>("/api/GetDomains").ConfigureAwait(false);
+  }
 
   public async Task CreateShortUrlAsync()
   {
@@ -59,7 +84,18 @@ style="width: 100%">
         Domain = this.Domain
       };
 
-      await Http.PostAsJsonAsync("/api/Ingest/", request).ConfigureAwait(false);
+      var response = await Http.PostAsJsonAsync("/api/Ingest/", request).ConfigureAwait(false);
+
+      if (response.StatusCode == System.Net.HttpStatusCode.OK)
+      {
+        Url = string.Empty;
+        ShortUrl = string.Empty;
+        Domain = string.Empty;
+      }
+      else
+      {
+        ErrorMessage = "Something went wrong!"
+          }
     }
   }
 }
