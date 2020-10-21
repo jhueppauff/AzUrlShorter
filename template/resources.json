@@ -47,9 +47,6 @@
         "use32BitWorkerProcess": {
             "type": "bool"
         },
-        "linuxFxVersion": {
-            "type": "string"
-        },
         "sku": {
             "type": "string"
         },
