@@ -180,7 +180,7 @@
             "apiVersion": "2018-11-01",
             "name": "[parameters('functionName')]",
             "type": "Microsoft.Web/sites",
-            "kind": "functionapp,windows",
+            "kind": "functionapp",
             "location": "[resourceGroup().location]",
             "tags": {},
             "dependsOn": [
