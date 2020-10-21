@@ -251,7 +251,7 @@
             "name": "[variables('hostingPlanName')]",
             "type": "Microsoft.Web/serverfarms",
             "location": "[resourceGroup().location]",
-            "kind": "linux",
+            "kind": "windows",
             "tags": {},
             "dependsOn": [],
             "properties": {
