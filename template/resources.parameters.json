@@ -44,9 +44,6 @@
         "use32BitWorkerProcess": {
             "value": false
         },
-        "linuxFxVersion": {
-            "value": "Node|12"
-        },
         "repositoryUrl": {
             "value": "https://github.com/jhueppauff/AzUrlShorter"
         },
