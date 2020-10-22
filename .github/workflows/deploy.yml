@@ -38,7 +38,7 @@ jobs:
         parameters: ./template/resources.parameters.json repositoryToken=${{ secrets.AUTHTOKEN }}
         deploymentName: GitHubDeployment-${{ github.run_id }}
     
-    - run: npm install -g azure-functions-core-tools
+    - run: npm install -g azure-functions-core-tools@3
     - run: npm install 
       working-directory: ./function
     - run: npm run build:production --if-present
