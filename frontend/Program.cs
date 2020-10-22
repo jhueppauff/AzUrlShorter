@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Http;
+using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 
 namespace frontend
 {
@@ -17,11 +19,19 @@ namespace frontend
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
 
-            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.Configuration["RootDomain"]) });
-            
+            builder.Services.AddHttpClient("Backend", sp => new HttpClient 
+            {
+                BaseAddress = new Uri(builder.Configuration["RootDomain"]),
+                Timeout = TimeSpan.FromSeconds(60)
+            }).AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>(); ;
+
+            builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
+            .CreateClient("Backend"));
+
             builder.Services.AddMsalAuthentication(options =>
             {
                 builder.Configuration.Bind("AzureAd", options.ProviderOptions.Authentication);
+                options.ProviderOptions.DefaultAccessTokenScopes.Add(builder.Configuration["ApiId"]);
             });
 
             await builder.Build().RunAsync();
