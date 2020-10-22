@@ -19,11 +19,9 @@ namespace frontend
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
 
-            builder.Services.AddHttpClient("Backend", sp => new HttpClient 
-            {
-                BaseAddress = new Uri(builder.Configuration["RootDomain"]),
-                Timeout = TimeSpan.FromSeconds(60)
-            }).AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>(); ;
+            builder.Services.AddHttpClient("Backend", client  => 
+            client.BaseAddress = new Uri(builder.Configuration["RootDomain"]))
+            .AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>(); ;
 
             builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
             .CreateClient("Backend"));
@@ -31,7 +29,7 @@ namespace frontend
             builder.Services.AddMsalAuthentication(options =>
             {
                 builder.Configuration.Bind("AzureAd", options.ProviderOptions.Authentication);
-                options.ProviderOptions.DefaultAccessTokenScopes.Add(builder.Configuration["ApiId"]);
+                options.ProviderOptions.DefaultAccessTokenScopes.Add(builder.Configuration["Scope"]);
             });
 
             await builder.Build().RunAsync();

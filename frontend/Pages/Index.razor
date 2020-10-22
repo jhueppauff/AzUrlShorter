@@ -1,7 +1,12 @@
 ﻿@page "/"
 @using frontend.Model
 @using System.Net.Http
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+
 @inject HttpClient Http
+
+@attribute [Authorize]
 
 <h1>Create a new short URL!</h1>
 
@@ -70,7 +75,15 @@ style="width: 100%">
 
   protected override async Task OnInitializedAsync()
   {
-    Domains = await Http.GetFromJsonAsync<List<DomainObject>>("/api/GetDomains").ConfigureAwait(false);
+    try
+    {
+        Domains = await Http.GetFromJsonAsync<List<DomainObject>>("/api/GetDomains").ConfigureAwait(false);
+    }
+    catch (AccessTokenNotAvailableException exception)
+    {
+      exception.Redirect();
+    }
+    
   }
 
   public async Task CreateShortUrlAsync()
