@@ -12,7 +12,8 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@azure/functions": "^1.0.2-beta2",
+    "@azure/functions": "^1.2.2",
+    "azure-functions-core-tools": "^2.7.2936",
     "typescript": "^3.3.3"
   }
 }
