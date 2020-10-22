@@ -2,10 +2,11 @@ import { AzureFunction, Context, HttpRequest } from "@azure/functions"
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
     context.log('GetDomain function processed a request.');
+
     if (req.query.name || (req.body && req.body.name)) {
         context.res = {
             // status: 200, /* Defaults to 200 */
-            body: "Hello " + (req.query.name || req.body.name)+". CurrentUser:"+req.headers['x-ms-client-principal-name']
+            body: "Hello " + (req.query.name || req.body.name)+". CurrentUser:"+req.headers['X-MS-CLIENT-PRINCIPAL-ID']
         };
     }
     else {
