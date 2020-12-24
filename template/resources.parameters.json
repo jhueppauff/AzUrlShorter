@@ -3,13 +3,13 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "staticWebAppName": {
-            "value": "swap-urlshorter-dev-we-001"
+            "value": "swap-urlshorter-prod-we-001"
         },
         "functionName": {
-            "value": "func-urlshorter-dev-we-001"
+            "value": "func-urlshorter-prod-we-001"
         },
         "storageAccountName": {
-            "value": "sturlshorterdevweu001"
+            "value": "sturlshorterprod  weu001"
         },
         "accountType": {
             "value": "Standard_RAGRS"
@@ -60,10 +60,10 @@
             "value": ""
         },
         "profileName": {
-            "value": "cdn-urlshorter-dev-weu-001"
+            "value": "cdn-urlshorter-prod-weu-001"
         },
         "endpointName": {
-            "value": "cdnend-urlshorter-dev-weu-001"
+            "value": "cdnend-urlshorter-prod-weu-001"
         },
         "CDNSku": {
             "value": {
@@ -77,12 +77,12 @@
             "value": {
                 "isHttpAllowed": true,
                 "isHttpsAllowed": true,
-                "originHostHeader": "func-urlshorter-dev-we-001.azurewebsites.net",
+                "originHostHeader": "func-urlshorter-prod-we-001.azurewebsites.net",
                 "origins": [
                     {
-                        "name": "func-urlshorter-dev-we-001-azurewebsites-net",
+                        "name": "func-urlshorter-prod-we-001-azurewebsites-net",
                         "properties": {
-                            "hostName": "func-urlshorter-dev-we-001.azurewebsites.net",
+                            "hostName": "func-urlshorter-prod-we-001.azurewebsites.net",
                             "httpPort": 80,
                             "httpsPort": 443
                         }
