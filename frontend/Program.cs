@@ -29,7 +29,7 @@ namespace frontend
             builder.Services.AddMsalAuthentication(options =>
             {
                 builder.Configuration.Bind("AzureAd", options.ProviderOptions.Authentication);
-                options.ProviderOptions.DefaultAccessTokenScopes.Add(builder.Configuration["Scope"]);
+                //options.ProviderOptions.DefaultAccessTokenScopes.Add(builder.Configuration["Scope"]);
             });
 
             await builder.Build().RunAsync();
