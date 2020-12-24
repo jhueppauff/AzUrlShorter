@@ -43,5 +43,5 @@ jobs:
       working-directory: ./function
     - run: npm run build:production --if-present
       working-directory: ./function
-    - run: func  azure functionapp publish func-urlshorter-dev-we-001 --typescript
+    - run: func  azure functionapp publish func-urlshorter-prod-we-001 --typescript
       working-directory: ./function
