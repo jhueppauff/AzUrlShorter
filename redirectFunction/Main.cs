@@ -17,7 +17,7 @@ namespace AzUrlShorter.Redirect
     public static class Main
     {
         [FunctionName(nameof(Redirect))]
-        public static async IActionResult Redirect(
+        public static IActionResult Redirect(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "redirect/{shortUrl}")] HttpRequest req, string shortUrl,
             [Table("shorturls")] CloudTable cloudTable,
             ILogger log)
@@ -35,6 +35,12 @@ namespace AzUrlShorter.Redirect
                     TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, req.Host.Host)));
 
             IEnumerable<Model.ShortUrl> entity = cloudTable.ExecuteQuery<Model.ShortUrl>(rangeQuery, null);
+
+            if (entity != null && !entity.Any())
+            {
+                return new RedirectResult("https://hueppauff.com/notfound", true);
+            }
+
             return new RedirectResult(entity.FirstOrDefault().Url, true);
         }
     }
