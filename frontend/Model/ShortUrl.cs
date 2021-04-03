@@ -1,11 +1,23 @@
+using Microsoft.Azure.Cosmos.Table;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
 namespace frontend.Model
 {
-    public class ShortUrlRequest
+    public class ShortUrl : TableEntity
     {
+        public ShortUrl()
+        {
+
+        }
+
+        public ShortUrl(string partitionKey, string rowKey)
+        {
+            this.PartitionKey = partitionKey;
+            this.RowKey = rowKey;
+        }
+
         public string Url { get; set; }
-
-        public string ShortUrl { get; set; }
-
-        public string Domain { get; set; }
     }
 }

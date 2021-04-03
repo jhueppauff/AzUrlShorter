@@ -17,7 +17,7 @@
     <!-- Text input-->
     <div class="form-group">
       <div class="col-md-4">
-        <input id="Url" name="Url" type="text" placeholder="https://bing.com" @bind="Url" class="form-control input-md"
+        <input id="Url" name="Url" type="text" placeholder="https://bing.com" @bind="shortUrl.Url" class="form-control input-md"
 required="">
       </div>
     </div>
@@ -26,14 +26,14 @@ required="">
     <div class="col-md-4 control-label">
       <div class="input-group mb-3">
         <div class="input-group-prepend">
-          <select class="form-control select2bs4" name="shortUrlDomain" @bind="Domain" id="shortUrlDomain"
+          <select class="form-control select2bs4" name="shortUrlDomain" @bind="shortUrl.RowKey" id="shortUrlDomain"
 style="width: 100%">
             <option disabled selected value> -- select an option -- </option>
             @if (Domains != null)
             {
-              @foreach (var domain in Domains)
+              @foreach (ConfigurationEntry domain in Domains)
               {
-                <option value="@domain.RowKey">@domain.Domain</option>
+                <option value="@domain.RowKey">@domain.RowKey</option>
               }
 
             }
@@ -43,7 +43,7 @@ style="width: 100%">
             }
           </select>
         </div>
-        <input type="text" name="shortUrl" class="form-control" @bind="ShortUrl" placeholder="shrt">
+        <input type="text" name="shortUrl" class="form-control" @bind="shortUrl.PartitionKey" placeholder="shrt">
       </div>
     </div>
     <!-- Button -->
@@ -65,19 +65,18 @@ style="width: 100%">
 
 
 @code {
-  private string Url;
-  private string ShortUrl;
-  private string Domain;
+  private ShortUrl shortUrl;
 
   private string ErrorMessage = string.Empty;
 
-  private List<DomainObject> Domains;
+  private List<ConfigurationEntry> Domains;
 
   protected override async Task OnInitializedAsync()
   {
     try
     {
-        Domains = await Http.GetFromJsonAsync<List<DomainObject>>("/api/GetDomains").ConfigureAwait(false);
+      shortUrl = new ShortUrl();
+      Domains = await Http.GetFromJsonAsync<List<ConfigurationEntry>>("/api/GetDomains").ConfigureAwait(false);
     }
     catch (AccessTokenNotAvailableException exception)
     {
@@ -88,22 +87,13 @@ style="width: 100%">
 
   public async Task CreateShortUrlAsync()
   {
-    if (Url != null && ShortUrl != null && Domain != null)
+    if (shortUrl.RowKey != null && shortUrl.Url != null)
     {
-      ShortUrlRequest request = new ShortUrlRequest()
-      {
-        Url = this.Url,
-        ShortUrl = this.ShortUrl,
-        Domain = this.Domain
-      };
-
-      var response = await Http.PostAsJsonAsync("/api/Ingest/", request).ConfigureAwait(false);
+      var response = await Http.PostAsJsonAsync("/api/Ingest/", shortUrl).ConfigureAwait(false);
 
       if (response.StatusCode == System.Net.HttpStatusCode.OK)
       {
-        Url = string.Empty;
-        ShortUrl = string.Empty;
-        Domain = string.Empty;
+        shortUrl = new ShortUrl();
       }
       else
       {

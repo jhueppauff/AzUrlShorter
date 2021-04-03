@@ -46,14 +46,9 @@ namespace Shorter.Backend
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req, ILogger log)
         {
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
+            ShortUrl data = JsonConvert.DeserializeObject<ShortUrl>(requestBody);
 
-            var Host = req.Host;
-
-            return new ShortUrl((string)data.ShortUrl, Host.Host)
-            {
-                Url = (string)data.Url
-            };
+            return data;
         }
     }
 }
