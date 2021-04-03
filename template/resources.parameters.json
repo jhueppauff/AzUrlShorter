@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "staticWebAppName": {
-            "value": "swap-urlshorter-prod-we-001"
+            "value": "sapp-urlshorter-prod-we-001"
         },
         "functionName": {
             "value": "func-urlshorter-prod-we-001"
@@ -51,10 +51,10 @@
             "value": "main"
         },
         "appLocation": {
-            "value": "/published/Frontend/wwwroot"
+            "value": "/frontend"
         },
         "apiLocation": {
-            "value": "/published/frontend/wwwroot"
+            "value": "/backend"
         },
         "appArtifactLocation": {
             "value": ""
@@ -78,16 +78,14 @@
                 "isHttpAllowed": true,
                 "isHttpsAllowed": true,
                 "originHostHeader": "func-urlshorter-prod-we-001.azurewebsites.net",
-                "origins": [
-                    {
-                        "name": "func-urlshorter-prod-we-001-azurewebsites-net",
-                        "properties": {
-                            "hostName": "func-urlshorter-prod-we-001.azurewebsites.net",
-                            "httpPort": 80,
-                            "httpsPort": 443
-                        }
+                "origins": [{
+                    "name": "func-urlshorter-prod-we-001-azurewebsites-net",
+                    "properties": {
+                        "hostName": "func-urlshorter-prod-we-001.azurewebsites.net",
+                        "httpPort": 80,
+                        "httpsPort": 443
                     }
-                ],
+                }],
                 "isCompressionEnabled": true,
                 "contentTypesToCompress": [
                     "application/eot",
