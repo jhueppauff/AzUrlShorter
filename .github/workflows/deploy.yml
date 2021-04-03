@@ -12,11 +12,6 @@ on:
 #   AZURE_FUNCTIONAPP_PUBLISH_PROFILE
 #
 # 2. Change these variables for your configuration:
-
-
-env:
- 
-   
   
 jobs:
   build-and-deploy:
