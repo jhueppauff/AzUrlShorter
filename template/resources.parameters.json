@@ -57,7 +57,7 @@
             "value": "/backend"
         },
         "appArtifactLocation": {
-            "value": ""
+            "value": "wwwroot"
         },
         "profileName": {
             "value": "cdn-urlshorter-prod-weu-001"
