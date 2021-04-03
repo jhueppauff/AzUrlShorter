@@ -47,5 +47,5 @@ jobs:
         dotnet build --configuration Release --output ./output
         popd
 
-    - run: func  azure functionapp publish func-urlshorter-prod-we-001
+    - run: func  azure functionapp publish func-urlshorter-prod-we-001 --csharp
       working-directory: ./redirectFunction/output
