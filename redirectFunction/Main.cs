@@ -26,13 +26,16 @@ namespace AzUrlShorter.Redirect
             {
                 return new RedirectResult("https://hueppauff.com/notfound", true);
             }
-            
+
+            string originHost = req.Headers.ContainsKey("x-original-host") ? req.Headers["x-original-host"] : req.Headers["host"];
+            originHost = originHost.Split(':')[0].Trim();
+
             TableQuery<Model.ShortUrl> rangeQuery = new TableQuery<Model.ShortUrl>().Where(
                 TableQuery.CombineFilters(
                     TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, 
                         shortUrl),
                     TableOperators.And,
-                    TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, req.Host.Host)));
+                    TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, originHost)));
 
             IEnumerable<Model.ShortUrl> entity = cloudTable.ExecuteQuery<Model.ShortUrl>(rangeQuery, null);
 
