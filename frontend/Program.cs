@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+using AzureStaticWebApps.Blazor.Authentication;
 
 namespace frontend
 {
@@ -15,18 +15,23 @@ namespace frontend
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
 
-            builder.Services.AddHttpClient("Backend", client  => 
-            client.BaseAddress = new Uri(builder.Configuration["RootDomain"]))
-            .AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>(); ;
+            builder.Services
+                .AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) })
+                .AddStaticWebAppsAuthentication();
+
+            string endpoint = builder.Configuration.GetSection("Backend").GetValue<string>("Endpoint");
+
+            builder.Services.AddHttpClient(nameof(UrlShorterClient),
+                client =>
+                {
+                    client.BaseAddress = new Uri(endpoint);
+
+                });
+
+            builder.Services.AddTransient<UrlShorterClient>();
 
             builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
-            .CreateClient("Backend"));
-
-            builder.Services.AddMsalAuthentication(options =>
-            {
-                builder.Configuration.Bind("AzureAd", options.ProviderOptions.Authentication);
-                //options.ProviderOptions.DefaultAccessTokenScopes.Add("https://graph.microsoft.com/User.Read");
-            });
+            .CreateClient(nameof(UrlShorterClient)));
 
             await builder.Build().RunAsync();
         }

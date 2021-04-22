@@ -1,10 +1,11 @@
 ﻿@page "/"
+@attribute [Authorize()]
 @using frontend.Model
 @using System.Net.Http
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 
-@inject HttpClient Http
+@inject UrlShorterClient client;
 
 @attribute [Authorize]
 
@@ -17,8 +18,7 @@
     <!-- Text input-->
     <div class="form-group">
       <div class="col-md-4">
-        <input id="Url" name="Url" type="text" placeholder="https://bing.com" @bind="shortUrl.Url" class="form-control input-md"
-required="">
+        <input id="Url" name="Url" type="text" placeholder="https://bing.com" @bind="shortUrl.Url" class="form-control input-md" required="">
       </div>
     </div>
 
@@ -76,7 +76,7 @@ style="width: 100%">
     try
     {
       shortUrl = new ShortUrl();
-      Domains = await Http.GetFromJsonAsync<List<ConfigurationEntry>>("/api/GetDomains").ConfigureAwait(false);
+      Domains = await client.GetDomains().ConfigureAwait(false);
     }
     catch (AccessTokenNotAvailableException exception)
     {
@@ -89,7 +89,7 @@ style="width: 100%">
   {
     if (shortUrl.RowKey != null && shortUrl.Url != null)
     {
-      var response = await Http.PostAsJsonAsync("/api/Ingest/", shortUrl).ConfigureAwait(false);
+      var response = await client.CreateShorterUrl(shortUrl).ConfigureAwait(false);
 
       if (response.StatusCode == System.Net.HttpStatusCode.OK)
       {
