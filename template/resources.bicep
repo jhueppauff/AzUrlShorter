@@ -132,7 +132,7 @@ resource functionName_resource 'Microsoft.Web/sites@2018-11-01' = {
         }
         {
           name: 'FUNCTIONS_WORKER_RUNTIME'
-          value: 'node'
+          value: 'dotnet'
         }
         {
           name: 'WEBSITE_NODE_DEFAULT_VERSION'
