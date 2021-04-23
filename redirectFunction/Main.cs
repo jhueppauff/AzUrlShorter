@@ -24,11 +24,15 @@ namespace AzUrlShorter.Redirect
         {
             if (shortUrl == null)
             {
+                log.LogError($"No ShortUrl was specified");
                 return new RedirectResult("https://hueppauff.com/notfound", true);
             }
 
             string originHost = req.Headers.ContainsKey("x-original-host") ? req.Headers["x-original-host"] : req.Headers["host"];
             originHost = originHost.Split(':')[0].Trim();
+
+            log.LogInformation($"Request for domain {originHost}");
+
 
             TableQuery<Model.ShortUrl> rangeQuery = new TableQuery<Model.ShortUrl>().Where(
                 TableQuery.CombineFilters(
@@ -41,6 +45,7 @@ namespace AzUrlShorter.Redirect
 
             if (entity != null && !entity.Any())
             {
+                log.LogError($"No ShortUrl was found");
                 return new RedirectResult("https://hueppauff.com/notfound", true);
             }
 
