@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.3.255.40792",
+      "templateHash": "10333441268015505957"
+    }
+  },
   "parameters": {
     "staticWebAppName": {
       "type": "string"
@@ -145,7 +152,10 @@
       "name": "[variables('applicationInsightsName_var')]",
       "location": "westeurope",
       "tags": {},
-      "kind": "web"
+      "kind": "web",
+      "properties": {
+        "Application_Type": "web"
+      }
     },
     {
       "type": "Microsoft.Storage/storageAccounts",
@@ -283,12 +293,5 @@
         "Name": "[parameters('skuCode')]"
       }
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "0.3.1.62928",
-      "templateHash": "7156014214309896204"
-    }
-  }
+  ]
 }

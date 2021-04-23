@@ -75,6 +75,9 @@ resource applicationInsightsName 'microsoft.insights/components@2015-05-01' = {
   location: 'westeurope'
   tags: {}
   kind: 'web'
+  properties: {
+    Application_Type: 'web'
+  }
 }
 
 resource storageAccountName_resource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
