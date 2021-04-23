@@ -135,10 +135,6 @@ resource functionName_resource 'Microsoft.Web/sites@2018-11-01' = {
           value: 'dotnet'
         }
         {
-          name: 'WEBSITE_NODE_DEFAULT_VERSION'
-          value: '~12'
-        }
-        {
           name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
           value: reference(applicationInsightsName.id, '2015-05-01').InstrumentationKey
         }
