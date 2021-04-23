@@ -19,7 +19,7 @@ namespace AzUrlShorter.Redirect
         [FunctionName(nameof(Redirect))]
         public static IActionResult Redirect(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "redirect/{shortUrl}")] HttpRequest req, string shortUrl,
-            [Table("shorturls")] CloudTable cloudTable,
+            [Table("shorturls", Connection = "AzureStorageConnection")] CloudTable cloudTable,
             ILogger log)
         {
             if (shortUrl == null)
@@ -28,7 +28,7 @@ namespace AzUrlShorter.Redirect
                 return new RedirectResult("https://hueppauff.com/notfound", true);
             }
 
-            string originHost = req.Headers.ContainsKey("x-original-host") ? req.Headers["x-original-host"] : req.Headers["host"];
+            string originHost = req.Headers.ContainsKey("cdn-origin") ? req.Headers["cdn-origin"] : req.Headers["host"];
             originHost = originHost.Split(':')[0].Trim();
 
             log.LogInformation($"Request for domain {originHost}");
