@@ -80,7 +80,7 @@
             "value": {
                 "isHttpAllowed": true,
                 "isHttpsAllowed": true,
-                "originHostHeader": "func-urlshorter-prod-we-001.azurewebsites.net",
+                "originHostHeader": "go.hueppauff.com",
                 "origins": [{
                     "name": "func-urlshorter-prod-we-001-azurewebsites-net",
                     "properties": {
@@ -139,7 +139,7 @@
             "value": {
                 "isHttpAllowed": true,
                 "isHttpsAllowed": true,
-                "originHostHeader": "func-urlshorter-prod-we-001.azurewebsites.net",
+                "originHostHeader": "go.hppff.systems",
                 "origins": [{
                     "name": "func-urlshorter-prod-we-001-azurewebsites-net",
                     "properties": {
