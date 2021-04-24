@@ -56,6 +56,11 @@ style="width: 100%">
   </fieldset>
 </form>
 
+@if(showUrl)
+{
+<a href="@url">@url</a>
+}
+
 @if (ErrorMessage != string.Empty)
 {
   <div class="alert alert-danger" role="alert">
@@ -66,7 +71,8 @@ style="width: 100%">
 
 @code {
   private ShortUrl shortUrl;
-
+  private bool showUrl = false;
+  private string url = string.Empty;
   private string ErrorMessage = string.Empty;
 
   private List<ConfigurationEntry> Domains;
@@ -93,6 +99,8 @@ style="width: 100%">
 
       if (response.StatusCode == System.Net.HttpStatusCode.OK)
       {
+        url = $"https://{shortUrl.RowKey}/{shortUrl.PartitionKey}";
+        showUrl = true;
         shortUrl = new ShortUrl();
       }
       else
