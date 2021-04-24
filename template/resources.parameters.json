@@ -146,7 +146,7 @@
                                 "parameters": {
                                     "headerAction": "Append",
                                     "headerName": "cdn-origin",
-                                    "value": "go.hueppauff.com",
+                                    "value": "%{host}",
                                     "@odata.type": "#Microsoft.Azure.Cdn.Models.DeliveryRuleHeaderActionParameters"
                                 }
                             }]
@@ -268,7 +268,7 @@
                                 "parameters": {
                                     "headerAction": "Append",
                                     "headerName": "cdn-origin",
-                                    "value": "go.hppff.systems",
+                                    "value": "%{host}",
                                     "@odata.type": "#Microsoft.Azure.Cdn.Models.DeliveryRuleHeaderActionParameters"
                                 }
                             }]
