@@ -90,6 +90,69 @@
                     }
                 }],
                 "isCompressionEnabled": true,
+                "deliveryPolicy": {
+                    "rules": [{
+                            "name": "Global",
+                            "order": 0,
+                            "conditions": [],
+                            "actions": [{
+                                "name": "CacheExpiration",
+                                "parameters": {
+                                    "cacheBehavior": "SetIfMissing",
+                                    "cacheType": "All",
+                                    "cacheDuration": "08:00:00",
+                                    "@odata.type": "#Microsoft.Azure.Cdn.Models.DeliveryRuleCacheExpirationActionParameters"
+                                }
+                            }]
+                        },
+                        {
+                            "name": "redirectHTTPS",
+                            "order": 1,
+                            "conditions": [{
+                                "name": "RequestScheme",
+                                "parameters": {
+                                    "matchValues": [
+                                        "HTTP"
+                                    ],
+                                    "operator": "Equal",
+                                    "negateCondition": false,
+                                    "@odata.type": "#Microsoft.Azure.Cdn.Models.DeliveryRuleRequestSchemeConditionParameters"
+                                }
+                            }],
+                            "actions": [{
+                                "name": "UrlRedirect",
+                                "parameters": {
+                                    "redirectType": "Found",
+                                    "destinationProtocol": "Https",
+                                    "@odata.type": "#Microsoft.Azure.Cdn.Models.DeliveryRuleUrlRedirectActionParameters"
+                                }
+                            }]
+                        },
+                        {
+                            "name": "appendHostname",
+                            "order": 2,
+                            "conditions": [{
+                                "name": "RequestUri",
+                                "parameters": {
+                                    "operator": "Any",
+                                    "negateCondition": false,
+                                    "matchValues": [],
+                                    "transforms": [],
+                                    "@odata.type": "#Microsoft.Azure.Cdn.Models.DeliveryRuleRequestUriConditionParameters"
+                                }
+                            }],
+                            "actions": [{
+                                "name": "ModifyRequestHeader",
+                                "parameters": {
+                                    "headerAction": "Append",
+                                    "headerName": "cdn-origin",
+                                    "value": "go.hueppauff.com",
+                                    "@odata.type": "#Microsoft.Azure.Cdn.Models.DeliveryRuleHeaderActionParameters"
+                                }
+                            }]
+                        }
+                    ]
+                },
                 "contentTypesToCompress": [
                     "application/eot",
                     "application/font",
@@ -149,6 +212,69 @@
                     }
                 }],
                 "isCompressionEnabled": true,
+                "deliveryPolicy": {
+                    "rules": [{
+                            "name": "Global",
+                            "order": 0,
+                            "conditions": [],
+                            "actions": [{
+                                "name": "CacheExpiration",
+                                "parameters": {
+                                    "cacheBehavior": "SetIfMissing",
+                                    "cacheType": "All",
+                                    "cacheDuration": "08:00:00",
+                                    "@odata.type": "#Microsoft.Azure.Cdn.Models.DeliveryRuleCacheExpirationActionParameters"
+                                }
+                            }]
+                        },
+                        {
+                            "name": "redirectHTTPS",
+                            "order": 1,
+                            "conditions": [{
+                                "name": "RequestScheme",
+                                "parameters": {
+                                    "matchValues": [
+                                        "HTTP"
+                                    ],
+                                    "operator": "Equal",
+                                    "negateCondition": false,
+                                    "@odata.type": "#Microsoft.Azure.Cdn.Models.DeliveryRuleRequestSchemeConditionParameters"
+                                }
+                            }],
+                            "actions": [{
+                                "name": "UrlRedirect",
+                                "parameters": {
+                                    "redirectType": "Found",
+                                    "destinationProtocol": "Https",
+                                    "@odata.type": "#Microsoft.Azure.Cdn.Models.DeliveryRuleUrlRedirectActionParameters"
+                                }
+                            }]
+                        },
+                        {
+                            "name": "appendHostname",
+                            "order": 2,
+                            "conditions": [{
+                                "name": "RequestUri",
+                                "parameters": {
+                                    "operator": "Any",
+                                    "negateCondition": false,
+                                    "matchValues": [],
+                                    "transforms": [],
+                                    "@odata.type": "#Microsoft.Azure.Cdn.Models.DeliveryRuleRequestUriConditionParameters"
+                                }
+                            }],
+                            "actions": [{
+                                "name": "ModifyRequestHeader",
+                                "parameters": {
+                                    "headerAction": "Append",
+                                    "headerName": "cdn-origin",
+                                    "value": "go.hppff.systems",
+                                    "@odata.type": "#Microsoft.Azure.Cdn.Models.DeliveryRuleHeaderActionParameters"
+                                }
+                            }]
+                        }
+                    ]
+                },
                 "contentTypesToCompress": [
                     "application/eot",
                     "application/font",
