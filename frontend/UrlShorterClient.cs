@@ -19,12 +19,12 @@ namespace frontend
 
         public async Task<HttpResponseMessage> CreateShorterUrl(Model.ShortUrl shortUrl)
         {
-            return await client.PostAsJsonAsync($"/api/Ingest", shortUrl).ConfigureAwait(false);
+            return await client.PostAsJsonAsync($"/api/Links", shortUrl).ConfigureAwait(false);
         }
 
         public async Task<List<Model.ConfigurationEntry>> GetDomains()
         {
-            return await client.GetFromJsonAsync<List<ConfigurationEntry>>("/api/GetDomains").ConfigureAwait(false);
+            return await client.GetFromJsonAsync<List<ConfigurationEntry>>("/api/Domains").ConfigureAwait(false);
         }
     }
 }

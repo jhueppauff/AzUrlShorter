@@ -17,7 +17,7 @@ namespace Shorter.Backend
     {
         [FunctionName(nameof(GetDomains))]
         public static async Task<IActionResult> GetDomains(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Domains")] HttpRequest req,
             [Table("configuration", Connection = "AzureStorageConnection")] CloudTable cloudTable,
             ILogger log)
         {
@@ -40,10 +40,10 @@ namespace Shorter.Backend
             return new OkObjectResult(list);
         }
 
-        [FunctionName(nameof(Ingest))]
+        [FunctionName(nameof(IngestShortLink))]
         [return: Table("shorturls", Connection = "AzureStorageConnection")]
-        public async static Task<ShortUrl> Ingest(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req, ILogger log)
+        public async static Task<ShortUrl> IngestShortLink(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Links")] HttpRequest req, ILogger log)
         {
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             ShortUrl data = JsonConvert.DeserializeObject<ShortUrl>(requestBody);
