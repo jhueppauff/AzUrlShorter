@@ -86,6 +86,9 @@
   {
     try
     {
+      shortUrl = new ShortUrl();
+      Domains = await client.GetDomains().ConfigureAwait(false);
+
       var uri = NavManager.ToAbsoluteUri(NavManager.Uri);
       if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("url", out var inputUrl))
       {
@@ -94,9 +97,6 @@
           shortUrl.Url = WebUtility.UrlDecode(inputUrl);
         }
       }
-
-      shortUrl = new ShortUrl();
-      Domains = await client.GetDomains().ConfigureAwait(false);
     }
     catch (AccessTokenNotAvailableException exception)
     {
