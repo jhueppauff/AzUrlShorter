@@ -45,7 +45,7 @@ namespace Shorter.Backend
         public static async Task<IActionResult> GetUserLinks(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Links")] HttpRequest req,
             [Table("shorturls", Connection = "AzureStorageConnection")] CloudTable cloudTable,
-            ILogger log, ClaimsPrincipal claimsPrincipal)
+            ILogger log)
         {
             #region Null Checks
             if (cloudTable == null)
@@ -54,7 +54,7 @@ namespace Shorter.Backend
             }
             #endregion
 
-            var query = new TableQuery<ShortUrl>().Where(TableQuery.GenerateFilterCondition("UserPrincipleName", QueryComparisons.Equal, claimsPrincipal.Identity.Name));
+            var query = new TableQuery<ShortUrl>().Where(TableQuery.GenerateFilterCondition("UserPrincipleName", QueryComparisons.Equal, StaticWebAppsAuth.Parse(req).Identity.Name));
 
             List<ShortUrl> list = new List<ShortUrl>();
 
@@ -68,12 +68,13 @@ namespace Shorter.Backend
 
         [FunctionName(nameof(IngestShortLink))]
         [return: Table("shorturls", Connection = "AzureStorageConnection")]
-        public async static Task<ShortUrl> IngestShortLink(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Links")] HttpRequest req, ILogger log, ClaimsPrincipal claimsPrincipal)
+        public async static Task<ShortUrl> IngestShortLink([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Links")] HttpRequest req,
+        ILogger log)
         {
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             ShortUrl data = JsonConvert.DeserializeObject<ShortUrl>(requestBody);
-            data.UserPrincipleName = claimsPrincipal.Identity.Name;
+
+            data.UserPrincipleName = StaticWebAppsAuth.Parse(req).Identity.Name;
 
             return data;
         }
