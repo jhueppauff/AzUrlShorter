@@ -18,7 +18,10 @@
                 <tr>
                     @foreach (var property in typeof(Model.ShortUrl).GetProperties())
                     {
-                        <td>@property.Name</td>
+                        @if (property.Name != "Timestamp" && property.Name != "ETag")
+                        {
+                            <td>@property.Name</td>                           
+                        }
                     }
                 </tr>
             </thead>
