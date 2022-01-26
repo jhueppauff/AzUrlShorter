@@ -25,7 +25,6 @@ namespace frontend
                 client =>
                 {
                     client.BaseAddress = new Uri(endpoint);
-
                 });
 
             builder.Services.AddTransient<UrlShorterClient>();

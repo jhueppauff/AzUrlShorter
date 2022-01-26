@@ -26,5 +26,10 @@ namespace frontend
         {
             return await client.GetFromJsonAsync<List<ConfigurationEntry>>("/api/Domains").ConfigureAwait(false);
         }
+
+        public async Task<List<ShortUrl>> GetLinks()
+        {
+            return await client.GetFromJsonAsync<List<ShortUrl>>("/api/Links").ConfigureAwait(false);
+        }
     }
 }

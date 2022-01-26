@@ -1,4 +1,6 @@
 ﻿@page "/"
+@page "/{inputUrl}"
+
 @attribute [Authorize()]
 @using frontend.Model
 @using System.Net.Http
@@ -71,6 +73,7 @@ style="width: 100%">
 
 @code {
   private ShortUrl shortUrl;
+  private string inputUrl;
   private bool showUrl = false;
   private string url = string.Empty;
   private string ErrorMessage = string.Empty;
@@ -83,6 +86,11 @@ style="width: 100%">
     {
       shortUrl = new ShortUrl();
       Domains = await client.GetDomains().ConfigureAwait(false);
+
+      if (!String.IsNullOrEmpty(inputUrl))
+      {
+          shortUrl.Url = inputUrl;
+      }
     }
     catch (AccessTokenNotAvailableException exception)
     {

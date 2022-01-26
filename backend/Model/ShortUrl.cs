@@ -19,5 +19,7 @@ namespace backend.Model
         }
 
         public string Url { get; set; }
+
+        public string UserPrincipleName { get; set; }
     }
 }

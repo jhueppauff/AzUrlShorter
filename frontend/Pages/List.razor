@@ -1,6 +1,46 @@
 @page "/List"
 @attribute [Authorize()]
 
+@using System.Reflection;
+
 <h1>Your shortlinks</h1>
 
-<p>In progress</p>
+<div class="container">
+    <div class="row col-md-6 col-md-offset-2 custyle">
+        <table class="table table-striped custab">
+            <thead>
+                <a href="#" class="btn btn-primary btn-xs pull-right"><b>+</b> Add new categories</a>
+                <tr>
+                    @foreach (var property in typeof(Model.ShortUrl).GetProperties())
+                    {
+                        <td>@property.Name</td>
+                    }
+                </tr>
+            </thead>
+            @foreach (var shortUrl in shortUrls)
+            {
+                @foreach (var property in shortUrl.GetType().GetProperties())
+                {
+                    <td>@property.GetValue(shortUrl)</td>
+                }
+            }
+        </table>
+    </div>
+</div>
+
+@code {
+    private List<Model.ShortUrl> shortUrls = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Domains = await client.GetDomains().ConfigureAwait(false);
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+
+    }
+}
