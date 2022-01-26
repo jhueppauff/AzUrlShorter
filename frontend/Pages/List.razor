@@ -16,21 +16,18 @@
         <table class="table table-striped custab">
             <thead>
                 <tr>
-                    @foreach (var property in typeof(Model.ShortUrl).GetProperties())
-                    {
-                        @if (property.Name != "Timestamp" && property.Name != "ETag")
-                        {
-                            <td>@property.Name</td>                           
-                        }
-                    }
+                    <td>Domain</td>
+                    <td>ShortKey</td>
+                    <td>Original Url</td>
+                    <td>Short link</td>
                 </tr>
             </thead>
             @foreach (var shortUrl in shortUrls)
             {
-                @foreach (var property in shortUrl.GetType().GetProperties())
-                {
-                    <td>@property.GetValue(shortUrl)</td>
-                }
+                <td>@shortUrl.RowKey</td>
+                <td>@shortUrl.PartitionKey</td>
+                <td><a href="@shortUrl.Url">@shortUrl.Url</a></td>
+                <td><a href="https://@shortUrl.RowKey/@shortUrl.PartitionKey">https://@shortUrl.RowKey/@shortUrl.PartitionKey</a></td>
                 <td><button @onclick="@(() => Delete(shortUrl))" class="btn btn-danger"><span class="glyphicon glyphicon-remove-sign"></span> Delete</button></td>
             }
         </table>
