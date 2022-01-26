@@ -50,7 +50,7 @@ resource profileName_endpointName2 'microsoft.cdn/profiles/endpoints@2020-04-15'
   properties: endpointProperties2
 }
 
-resource staticWebAppName_resource 'Microsoft.Web/staticSites@2019-12-01-preview' = {
+resource staticWebAppName_resource 'Microsoft.Web/staticSites@2021-02-01' = {
   name: staticWebAppName
   location: resourceGroup().location
   tags: {}
@@ -58,7 +58,6 @@ resource staticWebAppName_resource 'Microsoft.Web/staticSites@2019-12-01-preview
     repositoryUrl: repositoryUrl
     branch: branch
     repositoryToken: repositoryToken
-    provider: 'GitHub'
     buildProperties: {
       appLocation: appLocation
       apiLocation: apiLocation
@@ -66,8 +65,8 @@ resource staticWebAppName_resource 'Microsoft.Web/staticSites@2019-12-01-preview
     }
   }
   sku: {
-    Tier: 'Free'
-    Name: 'Free'
+    tier: 'Free'
+    name: 'Free'
   }
 }
 
