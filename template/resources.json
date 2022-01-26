@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.3.255.40792",
-      "templateHash": "13186365120393678736"
+      "version": "0.4.613.9944",
+      "templateHash": "47722175941882643"
     }
   },
   "parameters": {
@@ -127,7 +127,7 @@
     },
     {
       "type": "Microsoft.Web/staticSites",
-      "apiVersion": "2019-12-01-preview",
+      "apiVersion": "2021-02-01",
       "name": "[parameters('staticWebAppName')]",
       "location": "[resourceGroup().location]",
       "tags": {},
@@ -135,6 +135,7 @@
         "repositoryUrl": "[parameters('repositoryUrl')]",
         "branch": "[parameters('branch')]",
         "repositoryToken": "[parameters('repositoryToken')]",
+        "provider": "GitHub",
         "buildProperties": {
           "appLocation": "[parameters('appLocation')]",
           "apiLocation": "[parameters('apiLocation')]",
@@ -142,8 +143,8 @@
         }
       },
       "sku": {
-        "Tier": "Free",
-        "Name": "Free"
+        "tier": "Free",
+        "name": "Free"
       }
     },
     {
@@ -215,10 +216,6 @@
             {
               "name": "FUNCTIONS_WORKER_RUNTIME",
               "value": "dotnet"
-            },
-            {
-              "name": "WEBSITE_NODE_DEFAULT_VERSION",
-              "value": "~12"
             },
             {
               "name": "APPINSIGHTS_INSTRUMENTATIONKEY",

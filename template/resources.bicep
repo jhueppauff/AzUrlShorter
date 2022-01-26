@@ -60,7 +60,6 @@ resource staticWebAppName_resource 'Microsoft.Web/staticSites@2021-02-01' = {
     repositoryToken: repositoryToken
     provider: 'GitHub'
     buildProperties: {
-      githubActionSecretNameOverride: 'AzureSWAToken'
       appLocation: appLocation
       apiLocation: apiLocation
       appArtifactLocation: appArtifactLocation
