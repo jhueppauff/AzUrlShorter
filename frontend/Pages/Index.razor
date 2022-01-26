@@ -72,8 +72,9 @@ style="width: 100%">
 
 
 @code {
+  [Parameter]
+  private string inputUrl {get; set;}
   private ShortUrl shortUrl;
-  public string inputUrl;
   private bool showUrl = false;
   private string url = string.Empty;
   private string ErrorMessage = string.Empty;
