@@ -41,6 +41,7 @@ namespace Shorter.Backend
             return new OkObjectResult(list);
         }
 
+        [FunctionName(nameof(GetUserLinks))]
         public static async Task<IActionResult> GetUserLinks(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Links")] HttpRequest req,
             [Table("shorturls", Connection = "AzureStorageConnection")] CloudTable cloudTable,
