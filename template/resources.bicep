@@ -50,7 +50,7 @@ resource profileName_endpointName2 'microsoft.cdn/profiles/endpoints@2020-04-15'
   properties: endpointProperties2
 }
 
-resource staticWebAppName_resource 'Microsoft.Web/staticSites@2021-02-01' = {
+resource staticWebAppName_resource 'Microsoft.Web/staticSites@2021-03-01' = {
   name: staticWebAppName
   location: resourceGroup().location
   tags: {}
@@ -58,6 +58,7 @@ resource staticWebAppName_resource 'Microsoft.Web/staticSites@2021-02-01' = {
     repositoryUrl: repositoryUrl
     branch: branch
     repositoryToken: repositoryToken
+    provider: 'GitHub'
     buildProperties: {
       appLocation: appLocation
       apiLocation: apiLocation
