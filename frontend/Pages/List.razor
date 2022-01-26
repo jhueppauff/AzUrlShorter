@@ -1,5 +1,11 @@
 @page "/List"
 @attribute [Authorize()]
+@using frontend.Model
+@using System.Net.Http
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+
+@inject UrlShorterClient client;
 
 @using System.Reflection;
 
@@ -35,7 +41,7 @@
     {
         try
         {
-            Domains = await client.GetDomains().ConfigureAwait(false);
+            shortUrls = await client.GetLinks().ConfigureAwait(false);
         }
         catch (AccessTokenNotAvailableException exception)
         {
