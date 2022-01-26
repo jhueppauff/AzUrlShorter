@@ -15,7 +15,6 @@
     <div class="row col-md-6 col-md-offset-2 custyle">
         <table class="table table-striped custab">
             <thead>
-                <a href="#" class="btn btn-primary btn-xs pull-right"><b>+</b> Add new categories</a>
                 <tr>
                     @foreach (var property in typeof(Model.ShortUrl).GetProperties())
                     {
@@ -29,6 +28,7 @@
                 {
                     <td>@property.GetValue(shortUrl)</td>
                 }
+                <td></td>
             }
         </table>
     </div>
