@@ -24,11 +24,16 @@
             </thead>
             @foreach (var shortUrl in shortUrls)
             {
-                <td>@shortUrl.RowKey</td>
-                <td>@shortUrl.PartitionKey</td>
-                <td><a href="@shortUrl.Url">@shortUrl.Url</a></td>
-                <td><a href="https://@shortUrl.RowKey/@shortUrl.PartitionKey">https://@shortUrl.RowKey/@shortUrl.PartitionKey</a></td>
-                <td><button @onclick="@(() => Delete(shortUrl))" class="btn btn-danger"><span class="glyphicon glyphicon-remove-sign"></span> Delete</button></td>
+                <tr>
+                    <td>@shortUrl.RowKey</td>
+                    <td>@shortUrl.PartitionKey</td>
+                    <td><a href="@shortUrl.Url">@shortUrl.Url</a></td>
+                    <td><a
+                        href="https://@shortUrl.RowKey/@shortUrl.PartitionKey">https://@shortUrl.RowKey/@shortUrl.PartitionKey</a>
+                    </td>
+                    <td><button @onclick="@(() => Delete(shortUrl))" class="btn btn-danger"><span
+                            class="glyphicon glyphicon-remove-sign"></span> Delete</button></td>
+                </tr>
             }
         </table>
     </div>
@@ -42,9 +47,9 @@
         await Refresh();
     }
 
-    private async Task Refresh() 
+    private async Task Refresh()
     {
-         try
+        try
         {
             shortUrls = await client.GetLinks().ConfigureAwait(false);
         }
