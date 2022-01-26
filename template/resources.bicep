@@ -58,6 +58,7 @@ resource staticWebAppName_resource 'Microsoft.Web/staticSites@2019-12-01-preview
     repositoryUrl: repositoryUrl
     branch: branch
     repositoryToken: repositoryToken
+    provider: 'GitHub'
     buildProperties: {
       appLocation: appLocation
       apiLocation: apiLocation
