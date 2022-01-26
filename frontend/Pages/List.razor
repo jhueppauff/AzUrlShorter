@@ -28,7 +28,7 @@
                 {
                     <td>@property.GetValue(shortUrl)</td>
                 }
-                <td></td>
+                <td><button @onclick="@(() => Delete(shortUrl))" class="btn btn-danger"><span class="glyphicon glyphicon-remove-sign"></span> Delete</button></td>
             }
         </table>
     </div>
@@ -39,7 +39,12 @@
 
     protected override async Task OnInitializedAsync()
     {
-        try
+        await Refresh();
+    }
+
+    private async Task Refresh() 
+    {
+         try
         {
             shortUrls = await client.GetLinks().ConfigureAwait(false);
         }
@@ -47,6 +52,15 @@
         {
             exception.Redirect();
         }
+    }
 
+    private async Task Delete(ShortUrl shortUrl)
+    {
+
+        if (!await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete the shortlink '{shortUrl.RowKey}'?"))
+            return;
+
+        await client.DeleteLink(shortUrl);
+        await Refresh();
     }
 }

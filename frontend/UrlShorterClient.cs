@@ -31,5 +31,10 @@ namespace frontend
         {
             return await client.GetFromJsonAsync<List<ShortUrl>>("/api/Links").ConfigureAwait(false);
         }
+
+        public async Task<HttpResponseMessage> DeleteLink(ShortUrl shortUrl)
+        {
+            return await client.DeleteAsync($"/api/Links{shortUrl.PartitionKey}/{shortUrl.RowKey}").ConfigureAwait(false);
+        }
     }
 }

@@ -66,6 +66,32 @@ namespace Shorter.Backend
             return new OkObjectResult(list);
         }
 
+        [FunctionName(nameof(DeleteLink))]
+        public static async Task<IActionResult> DeleteLink(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "Links/{partitionKey}/{rowKey}")] HttpRequest req, string partitionKey, string rowKey,
+            [Table("shorturls", Connection = "AzureStorageConnection")] CloudTable cloudTable,
+            ILogger log)
+        {
+            #region Null Checks
+            if (cloudTable == null)
+            {
+                throw new ArgumentNullException(nameof(cloudTable));
+            }
+            #endregion
+
+            var entity = new ShortUrl
+            {
+                PartitionKey = partitionKey,
+                RowKey = rowKey,
+                ETag = "*"
+            };
+
+            TableOperation deleteOperation = TableOperation.Delete(entity);
+            await cloudTable.ExecuteAsync(deleteOperation).ConfigureAwait(false);
+            
+            return new OkResult();
+        }
+
         [FunctionName(nameof(IngestShortLink))]
         [return: Table("shorturls", Connection = "AzureStorageConnection")]
         public async static Task<ShortUrl> IngestShortLink([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Links")] HttpRequest req,
