@@ -34,7 +34,7 @@ namespace frontend
 
         public async Task<HttpResponseMessage> DeleteLink(ShortUrl shortUrl)
         {
-            return await client.DeleteAsync($"/api/Links{shortUrl.PartitionKey}/{shortUrl.RowKey}").ConfigureAwait(false);
+            return await client.DeleteAsync($"/api/Links/{shortUrl.PartitionKey}/{shortUrl.RowKey}").ConfigureAwait(false);
         }
     }
 }
