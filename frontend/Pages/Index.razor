@@ -1,7 +1,6 @@
 ﻿@page "/"
 
 @attribute [Authorize()]
-@using Microsoft.AspNetCore.WebUtilities
 @using System.Net
 @using frontend.Model
 @using System.Net.Http
@@ -16,111 +15,111 @@
 <h1>Create a new short URL!</h1>
 
 <form class="form-horizontal">
-  <fieldset>
+    <fieldset>
 
 
-    <!-- Text input-->
-    <div class="form-group">
-      <div class="col-md-4">
-        <input id="Url" name="Url" type="text" placeholder="https://bing.com" @bind="shortUrl.Url"
-          class="form-control input-md" required="">
-      </div>
-    </div>
-
-    <!-- Button Drop Down -->
-    <div class="col-md-4 control-label">
-      <div class="input-group mb-3">
-        <div class="input-group-prepend">
-          <select class="form-control select2bs4" name="shortUrlDomain" @bind="shortUrl.RowKey" id="shortUrlDomain"
-            style="width: 100%">
-            <option disabled selected value> -- select an option -- </option>
-            @if (Domains != null)
-            {
-              @foreach (ConfigurationEntry domain in Domains)
-              {
-                <option value="@domain.RowKey">@domain.RowKey</option>
-              }
-
-            }
-            else
-            {
-              <option value="">Loading</option>
-            }
-          </select>
+        <!-- Text input-->
+        <div class="form-group">
+            <div class="col-md-4">
+                <input id="Url" name="Url" type="text" placeholder="https://bing.com" @bind="shortUrl.Url"
+                       class="form-control input-md" required="">
+            </div>
         </div>
-        <input type="text" name="shortUrl" class="form-control" @bind="shortUrl.PartitionKey" placeholder="shrt">
-      </div>
-    </div>
-    <!-- Button -->
-    <div class="form-group">
-      <div class="col-md-4">
-        <a id="create" name="create" class="btn btn-success" @onclick="CreateShortUrlAsync">Create</a>
-      </div>
-    </div>
 
-  </fieldset>
+        <!-- Button Drop Down -->
+        <div class="col-md-4 control-label">
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <select class="form-control select2bs4" name="shortUrlDomain" @bind="shortUrl.RowKey" id="shortUrlDomain"
+                            style="width: 100%">
+                        <option disabled selected value> -- select an option -- </option>
+                        @if (Domains != null)
+                        {
+                            @foreach (ConfigurationEntry domain in Domains)
+                            {
+                                <option value="@domain.RowKey">@domain.RowKey</option>
+                            }
+
+                        }
+                        else
+                        {
+                            <option value="">Loading</option>
+                        }
+                    </select>
+                </div>
+                <input type="text" name="shortUrl" class="form-control" @bind="shortUrl.PartitionKey" placeholder="shrt">
+            </div>
+        </div>
+        <!-- Button -->
+        <div class="form-group">
+            <div class="col-md-4">
+                <a id="create" name="create" class="btn btn-success" @onclick="CreateShortUrlAsync">Create</a>
+            </div>
+        </div>
+
+    </fieldset>
 </form>
 
 @if (showUrl)
 {
-  <a href="@url">@url</a>
+    <a href="@url">@url</a>
 }
 
 @if (ErrorMessage != string.Empty)
 {
-  <div class="alert alert-danger" role="alert">
-    @ErrorMessage
-  </div>
+    <div class="alert alert-danger" role="alert">
+        @ErrorMessage
+    </div>
 }
 
 
 @code {
-  private ShortUrl shortUrl;
-  private bool showUrl = false;
-  private string url = string.Empty;
-  private string ErrorMessage = string.Empty;
+    private ShortUrl shortUrl;
+    private bool showUrl = false;
+    private string url = string.Empty;
+    private string ErrorMessage = string.Empty;
 
-  private List<ConfigurationEntry> Domains;
+    private List<ConfigurationEntry> Domains;
 
-  protected override async Task OnInitializedAsync()
-  {
-    try
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "url")]
+    public string queryUrlParameter { get; set; }
+
+    protected override async Task OnInitializedAsync()
     {
-      shortUrl = new ShortUrl();
-      Domains = await client.GetDomains().ConfigureAwait(false);
-
-      var uri = NavManager.ToAbsoluteUri(NavManager.Uri);
-      if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("url", out var inputUrl))
-      {
-        if (!String.IsNullOrEmpty(inputUrl))
+        try
         {
-          shortUrl.Url = WebUtility.UrlDecode(inputUrl);
+            shortUrl = new ShortUrl();
+            Domains = await client.GetDomains().ConfigureAwait(false);
+
+            if (!String.IsNullOrEmpty(queryUrlParameter))
+            {
+                shortUrl.Url = WebUtility.UrlDecode(queryUrlParameter);
+            }
         }
-      }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+
     }
-    catch (AccessTokenNotAvailableException exception)
+
+    public async Task CreateShortUrlAsync()
     {
-      exception.Redirect();
+        if (shortUrl.RowKey != null && shortUrl.Url != null)
+        {
+            var response = await client.CreateShorterUrl(shortUrl).ConfigureAwait(false);
+
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                url = $"https://{shortUrl.RowKey}/{shortUrl.PartitionKey}";
+                showUrl = true;
+                shortUrl = new ShortUrl();
+            }
+            else
+            {
+                ErrorMessage = "Something went wrong!";
+            }
+        }
     }
-
-  }
-
-  public async Task CreateShortUrlAsync()
-  {
-    if (shortUrl.RowKey != null && shortUrl.Url != null)
-    {
-      var response = await client.CreateShorterUrl(shortUrl).ConfigureAwait(false);
-
-      if (response.StatusCode == System.Net.HttpStatusCode.OK)
-      {
-        url = $"https://{shortUrl.RowKey}/{shortUrl.PartitionKey}";
-        showUrl = true;
-        shortUrl = new ShortUrl();
-      }
-      else
-      {
-        ErrorMessage = "Something went wrong!";
-      }
-    }
-  }
 }
