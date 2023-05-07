@@ -129,7 +129,7 @@ resource functionName_resource 'Microsoft.Web/sites@2018-11-01' = {
       appSettings: [
         {
           name: 'FUNCTIONS_EXTENSION_VERSION'
-          value: '~3'
+          value: '~4'
         }
         {
           name: 'FUNCTIONS_WORKER_RUNTIME'
@@ -175,7 +175,7 @@ resource functionName_web 'Microsoft.Web/sites/config@2016-08-01' = {
         'https://functions.azure.com'
         'https://functions-staging.azure.com'
         'https://functions-next.azure.com'
-        'https://shorter.apps.hueppauff.com'
+        'https://shorter.hueppauff.com'
         'https://localhost:5001'
       ]
     }
