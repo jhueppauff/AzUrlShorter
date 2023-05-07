@@ -1,19 +1,16 @@
-using Microsoft.Azure.Cosmos.Table;
+using Azure;
+using Azure.Data.Tables;
+using System;
 
 namespace AzUrlShorter.Redirect.Model
 {
-    public class ShortUrl : TableEntity
+    public class ShortUrl : ITableEntity
     {
-        public ShortUrl()
-        {
-        }
-
-        public ShortUrl(string partitionKey, string rowKey)
-        {
-            this.PartitionKey = partitionKey;
-            this.RowKey = rowKey;
-        }
-
         public string Url { get; set; }
+
+        public string PartitionKey { get; set; }
+        public string RowKey { get; set; }
+        public DateTimeOffset? Timestamp { get; set; }
+        public ETag ETag { get; set; }
     }
 }

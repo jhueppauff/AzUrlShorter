@@ -1,25 +1,22 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Microsoft.Azure.Cosmos.Table;
-using Microsoft.Azure.WebJobs.Host;
 using System.Collections.Generic;
 using System.Linq;
+using Azure.Data.Tables;
+using Azure;
+using System.Threading.Tasks;
 
 namespace AzUrlShorter.Redirect
 {
     public static class Main
     {
         [FunctionName(nameof(Redirect))]
-        public static IActionResult Redirect(
+        public async static Task<IActionResult> Redirect(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "redirect/{shortUrl}")] HttpRequest req, string shortUrl,
-            [Table("shorturls", Connection = "AzureStorageConnection")] CloudTable cloudTable,
+            [Table("shorturls", Connection = "AzureStorageConnection")] TableClient tableClient,
             ILogger log)
         {
             if (shortUrl == null)
@@ -33,23 +30,21 @@ namespace AzUrlShorter.Redirect
 
             log.LogInformation($"Request for domain {originHost}");
 
+            AsyncPageable<Model.ShortUrl> queryResults = tableClient.QueryAsync<Model.ShortUrl>(filter: $"PartitionKey eq '{shortUrl}' and RowKey eq '{originHost}'");
 
-            TableQuery<Model.ShortUrl> rangeQuery = new TableQuery<Model.ShortUrl>().Where(
-                TableQuery.CombineFilters(
-                    TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, 
-                        shortUrl),
-                    TableOperators.And,
-                    TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, originHost)));
+            List<Model.ShortUrl> shortUrls= new List<Model.ShortUrl>();
+            await foreach (Model.ShortUrl entity in queryResults)
+            {
+                shortUrls.Add(entity);
+            }
 
-            IEnumerable<Model.ShortUrl> entity = cloudTable.ExecuteQuery<Model.ShortUrl>(rangeQuery, null);
-
-            if (entity != null && !entity.Any())
+            if (shortUrls.Count == 0)
             {
                 log.LogError($"No ShortUrl was found");
                 return new RedirectResult("https://hueppauff.com/notfound", true);
             }
 
-            return new RedirectResult(entity.FirstOrDefault().Url, true);
+            return new RedirectResult(shortUrls.FirstOrDefault().Url, true);
         }
     }
 }

@@ -5,12 +5,13 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Azure.Cosmos.Table;
+using Azure;
+using Azure.Data.Tables;
 using System.Collections.Generic;
 using backend.Model;
 using System.IO;
 using Newtonsoft.Json;
-using System.Security.Claims;
+
 
 namespace Shorter.Backend
 {
@@ -19,21 +20,20 @@ namespace Shorter.Backend
         [FunctionName(nameof(GetDomains))]
         public static async Task<IActionResult> GetDomains(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Domains")] HttpRequest req,
-            [Table("configuration", Connection = "AzureStorageConnection")] CloudTable cloudTable,
+            [Table("configuration", Connection = "AzureStorageConnection")] TableClient tableClient,
             ILogger log)
         {
             #region Null Checks
-            if (cloudTable == null)
+            if (tableClient == null)
             {
-                throw new ArgumentNullException(nameof(cloudTable));
+                throw new ArgumentNullException(nameof(tableClient));
             }
             #endregion
 
-            var query = new TableQuery<Configuration>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, "Domains"));
-
+            AsyncPageable<Configuration> queryResults = tableClient.QueryAsync<Configuration>(filter: $"PartitionKey eq 'Domains'");
             List<Configuration> list = new List<Configuration>();
 
-            foreach (var entity in await cloudTable.ExecuteQuerySegmentedAsync(query, null).ConfigureAwait(false))
+            await foreach (Configuration entity in queryResults)
             {
                 list.Add(entity);
             }
@@ -44,21 +44,21 @@ namespace Shorter.Backend
         [FunctionName(nameof(GetUserLinks))]
         public static async Task<IActionResult> GetUserLinks(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Links")] HttpRequest req,
-            [Table("shorturls", Connection = "AzureStorageConnection")] CloudTable cloudTable,
+            [Table("shorturls", Connection = "AzureStorageConnection")] TableClient tableClient,
             ILogger log)
         {
             #region Null Checks
-            if (cloudTable == null)
+            if (tableClient == null)
             {
-                throw new ArgumentNullException(nameof(cloudTable));
+                throw new ArgumentNullException(nameof(tableClient));
             }
             #endregion
 
-            var query = new TableQuery<ShortUrl>().Where(TableQuery.GenerateFilterCondition("UserPrincipleName", QueryComparisons.Equal, StaticWebAppsAuth.Parse(req).Identity.Name));
+            AsyncPageable<ShortUrl> queryResults = tableClient.QueryAsync<ShortUrl>(filter: $"UserPrincipleName eq '{StaticWebAppsAuth.Parse(req).Identity.Name}'");
 
             List<ShortUrl> list = new List<ShortUrl>();
 
-            foreach (var entity in await cloudTable.ExecuteQuerySegmentedAsync(query, null).ConfigureAwait(false))
+            await foreach (ShortUrl entity in queryResults)
             {
                 list.Add(entity);
             }
@@ -69,26 +69,17 @@ namespace Shorter.Backend
         [FunctionName(nameof(DeleteLink))]
         public static async Task<IActionResult> DeleteLink(
             [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "Links/{partitionKey}/{rowKey}")] HttpRequest req, string partitionKey, string rowKey,
-            [Table("shorturls", Connection = "AzureStorageConnection")] CloudTable cloudTable,
+            [Table("shorturls", Connection = "AzureStorageConnection")] TableClient tableClient,
             ILogger log)
         {
             #region Null Checks
-            if (cloudTable == null)
+            if (tableClient == null)
             {
-                throw new ArgumentNullException(nameof(cloudTable));
+                throw new ArgumentNullException(nameof(tableClient));
             }
             #endregion
 
-            var entity = new ShortUrl
-            {
-                PartitionKey = partitionKey,
-                RowKey = rowKey,
-                ETag = "*"
-            };
-
-            TableOperation deleteOperation = TableOperation.Delete(entity);
-            await cloudTable.ExecuteAsync(deleteOperation).ConfigureAwait(false);
-            
+            await tableClient.DeleteEntityAsync(partitionKey, rowKey, ETag.All);            
             return new OkResult();
         }
 
