@@ -12,7 +12,9 @@ on:
 #   AZURE_FUNCTIONAPP_PUBLISH_PROFILE
 #
 # 2. Change these variables for your configuration:
-  
+permissions:
+      id-token: write
+      contents: read
 jobs:
   build-and-deploy:
     runs-on: windows-latest
