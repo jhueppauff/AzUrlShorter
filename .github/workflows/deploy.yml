@@ -37,7 +37,7 @@ jobs:
         parameters: ./template/resources.parameters.json repositoryToken=${{ secrets.AUTHTOKEN }}
         deploymentName: GitHubDeployment-${{ github.run_id }}
     
-    - run: npm install -g azure-functions-core-tools@3
+    - run: npm install -g azure-functions-core-tools@4
 
     - name: Setup DotNet Environment
       uses: actions/setup-dotnet@v1
