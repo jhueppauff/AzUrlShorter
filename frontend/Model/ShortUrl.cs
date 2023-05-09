@@ -6,12 +6,10 @@ using System.Text;
 
 namespace frontend.Model
 {
-    public class ShortUrl : ITableEntity
+    public class ShortUrl
     {
         public string PartitionKey { get; set; }
         public string RowKey { get; set; }
-        public DateTimeOffset? Timestamp { get; set; }
-        public ETag ETag { get; set; }
 
         public string Url { get; set; }
     }
