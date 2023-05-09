@@ -15,7 +15,7 @@ namespace AzUrlShorter.Redirect
     {
         [FunctionName(nameof(Redirect))]
         public async static Task<IActionResult> Redirect(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "redirect/{shortUrl}")] HttpRequest req, string shortUrl,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "/{shortUrl}")] HttpRequest req, string shortUrl,
             [Table("shorturls", Connection = "AzureStorageConnection")] TableClient tableClient,
             ILogger log)
         {
