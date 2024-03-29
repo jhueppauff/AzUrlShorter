@@ -10,18 +10,14 @@ using Microsoft.Azure.Functions.Worker;
 
 namespace AzUrlShorter.Redirect
 {
-    public class Main
+    public class Main(ILogger<Main> logger)
     {
-        private readonly ILogger _logger;
-
-        public Main(ILogger<Main> logger)
-        {
-            _logger = logger;
-        }
+        private readonly ILogger _logger = logger;
 
         [Function(nameof(Redirect))]
         public async Task<IActionResult> Redirect(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "/{shortUrl}")] HttpRequest req, string shortUrl, [TableInput("shorturls", Connection = "AzureStorageConnection")] TableClient tableClient)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "{shortUrl}")] HttpRequest req, string shortUrl, 
+        [TableInput("shorturls", Connection = "AzureStorageConnection")] TableClient tableClient)
         {
             if (shortUrl == null)
             {
