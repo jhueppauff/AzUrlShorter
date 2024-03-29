@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
@@ -8,31 +6,36 @@ using System.Linq;
 using Azure.Data.Tables;
 using Azure;
 using System.Threading.Tasks;
+using Microsoft.Azure.Functions.Worker;
 
 namespace AzUrlShorter.Redirect
 {
-    public static class Main
+    public class Main
     {
-        [FunctionName(nameof(Redirect))]
-        public async static Task<IActionResult> Redirect(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "/{shortUrl}")] HttpRequest req, string shortUrl,
-            [Table("shorturls", Connection = "AzureStorageConnection")] TableClient tableClient,
-            ILogger log)
+        private readonly ILogger _logger;
+
+        public Main(ILogger<Main> logger)
+        {
+            _logger = logger;
+        }
+
+        [Function(nameof(Redirect))]
+        public async Task<IActionResult> Redirect(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "/{shortUrl}")] HttpRequest req, string shortUrl, [TableInput("shorturls", Connection = "AzureStorageConnection")] TableClient tableClient)
         {
             if (shortUrl == null)
             {
-                log.LogError($"No ShortUrl was specified");
+                _logger.LogError($"No ShortUrl was specified");
                 return new RedirectResult("https://hueppauff.com/notfound", true);
             }
 
             string originHost = req.Headers.ContainsKey("cdn-origin") ? req.Headers["cdn-origin"] : req.Headers["host"];
             originHost = originHost.Split(':')[0].Trim();
-
-            log.LogInformation($"Request for domain {originHost}");
+            _logger.LogInformation($"Request for domain {originHost}");
 
             AsyncPageable<Model.ShortUrl> queryResults = tableClient.QueryAsync<Model.ShortUrl>(filter: $"PartitionKey eq '{shortUrl}' and RowKey eq '{originHost}'");
 
-            List<Model.ShortUrl> shortUrls= new List<Model.ShortUrl>();
+            List<Model.ShortUrl> shortUrls = new List<Model.ShortUrl>();
             await foreach (Model.ShortUrl entity in queryResults)
             {
                 shortUrls.Add(entity);
@@ -40,7 +43,7 @@ namespace AzUrlShorter.Redirect
 
             if (shortUrls.Count == 0)
             {
-                log.LogError($"No ShortUrl was found");
+                _logger.LogError($"No ShortUrl was found");
                 return new RedirectResult("https://hueppauff.com/notfound", true);
             }
 
