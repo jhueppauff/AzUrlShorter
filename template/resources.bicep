@@ -159,6 +159,10 @@ resource functionName_resource 'Microsoft.Web/sites@2018-11-01' = {
           name: 'WEBSITE_CONTENTSHARE'
           value: toLower(functionName)
         }
+        {
+          name: 'WEBSITE_RUN_FROM_PACKAGE'
+          value: '1'
+        }
       ]
       use32BitWorkerProcess: use32BitWorkerProcess
     }

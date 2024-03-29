@@ -240,6 +240,10 @@
             {
               "name": "WEBSITE_CONTENTSHARE",
               "value": "[toLower(parameters('functionName'))]"
+            },
+            {
+              "name": "WEBSITE_RUN_FROM_PACKAGE",
+              "value": "1"
             }
           ],
           "use32BitWorkerProcess": "[parameters('use32BitWorkerProcess')]"
