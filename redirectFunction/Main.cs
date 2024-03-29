@@ -12,7 +12,7 @@ namespace AzUrlShorter.Redirect
 {
     public class Main(ILogger<Main> logger)
     {
-        private readonly ILogger _logger = logger;
+        private readonly ILogger<Main> _logger = logger;
 
         [Function(nameof(Redirect))]
         public async Task<IActionResult> Redirect(
