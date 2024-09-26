@@ -19,6 +19,7 @@ namespace AzUrlShorter.Redirect
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "{shortUrl}")] HttpRequest req, string shortUrl, 
         [TableInput("shorturls", Connection = "AzureStorageConnection")] TableClient tableClient)
         {
+            _logger.LogTrace("Triggered redirect function, shortUrl: {shortUrl}", shortUrl);
             if (shortUrl == null)
             {
                 _logger.LogError($"No ShortUrl was specified");

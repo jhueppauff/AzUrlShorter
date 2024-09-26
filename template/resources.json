@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.4.613.9944",
-      "templateHash": "47722175941882643"
+      "version": "0.29.47.4906",
+      "templateHash": "7838915817328921370"
     }
   },
   "parameters": {
@@ -28,7 +28,7 @@
       "type": "string"
     },
     "repositoryToken": {
-      "type": "secureString"
+      "type": "securestring"
     },
     "functionName": {
       "type": "string"
@@ -91,7 +91,6 @@
       "type": "object"
     }
   },
-  "functions": [],
   "variables": {
     "hostingPlanName_var": "[replace(parameters('functionName'), 'func', 'plan')]",
     "applicationInsightsName_var": "[replace(parameters('functionName'), 'func', 'appi')]"
@@ -127,7 +126,7 @@
     },
     {
       "type": "Microsoft.Web/staticSites",
-      "apiVersion": "2021-02-01",
+      "apiVersion": "2023-12-01",
       "name": "[parameters('staticWebAppName')]",
       "location": "[resourceGroup().location]",
       "tags": {},
@@ -148,15 +147,31 @@
       }
     },
     {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2023-09-01",
+      "name": "logAnalyticsWorkspace",
+      "location": "westeurope",
+      "tags": {},
+      "properties": {
+        "sku": {
+          "name": "PerGB2018"
+        }
+      }
+    },
+    {
       "type": "Microsoft.Insights/components",
-      "apiVersion": "2015-05-01",
+      "apiVersion": "2020-02-02",
       "name": "[variables('applicationInsightsName_var')]",
       "location": "westeurope",
       "tags": {},
       "kind": "web",
       "properties": {
+        "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', 'logAnalyticsWorkspace')]",
         "Application_Type": "web"
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces', 'logAnalyticsWorkspace')]"
+      ]
     },
     {
       "type": "Microsoft.Storage/storageAccounts",
@@ -206,7 +221,6 @@
       "location": "[resourceGroup().location]",
       "tags": {},
       "properties": {
-        "name": "[parameters('functionName')]",
         "siteConfig": {
           "appSettings": [
             {
@@ -260,7 +274,7 @@
     {
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2016-08-01",
-      "name": "[format('{0}/web', parameters('functionName'))]",
+      "name": "[format('{0}/{1}', parameters('functionName'), 'web')]",
       "properties": {
         "cors": {
           "allowedOrigins": [
@@ -290,8 +304,8 @@
         "numberOfWorkers": "[parameters('numberOfWorkers')]"
       },
       "sku": {
-        "Tier": "[parameters('sku')]",
-        "Name": "[parameters('skuCode')]"
+        "tier": "[parameters('sku')]",
+        "name": "[parameters('skuCode')]"
       }
     }
   ]

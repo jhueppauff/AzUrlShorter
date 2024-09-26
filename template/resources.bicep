@@ -39,18 +39,20 @@ resource profileName_resource 'microsoft.cdn/profiles@2020-04-15' = {
 }
 
 resource profileName_endpointName 'microsoft.cdn/profiles/endpoints@2020-04-15' = {
-  name: '${profileName_resource.name}/${endpointName}'
+  parent: profileName_resource
+  name: endpointName
   location: 'Global'
   properties: endpointProperties
 }
 
 resource profileName_endpointName2 'microsoft.cdn/profiles/endpoints@2020-04-15' = {
-  name: '${profileName_resource.name}/${endpointName2}'
+  parent: profileName_resource
+  name: endpointName2
   location: 'Global'
   properties: endpointProperties2
 }
 
-resource staticWebAppName_resource 'Microsoft.Web/staticSites@2021-02-01' = {
+resource staticWebAppName_resource 'Microsoft.Web/staticSites@2023-12-01' = {
   name: staticWebAppName
   location: resourceGroup().location
   tags: {}
@@ -71,12 +73,24 @@ resource staticWebAppName_resource 'Microsoft.Web/staticSites@2021-02-01' = {
   }
 }
 
-resource applicationInsightsName 'microsoft.insights/components@2015-05-01' = {
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
+  name: 'logAnalyticsWorkspace'
+  location: 'westeurope'
+  tags: {}
+  properties: {
+    sku: {
+      name: 'PerGB2018'
+    }
+  }
+}
+
+resource applicationInsightsName 'Microsoft.Insights/components@2020-02-02' = {
   name: applicationInsightsName_var
   location: 'westeurope'
   tags: {}
   kind: 'web'
   properties: {
+    WorkspaceResourceId: logAnalyticsWorkspace.id
     Application_Type: 'web'
   }
 }
@@ -124,7 +138,6 @@ resource functionName_resource 'Microsoft.Web/sites@2018-11-01' = {
   location: resourceGroup().location
   tags: {}
   properties: {
-    name: functionName
     siteConfig: {
       appSettings: [
         {
@@ -172,7 +185,8 @@ resource functionName_resource 'Microsoft.Web/sites@2018-11-01' = {
 }
 
 resource functionName_web 'Microsoft.Web/sites/config@2016-08-01' = {
-  name: '${functionName_resource.name}/web'
+  parent: functionName_resource
+  name: 'web'
   properties: {
     cors: {
       allowedOrigins: [
@@ -198,8 +212,8 @@ resource hostingPlanName 'Microsoft.Web/serverfarms@2018-11-01' = {
     numberOfWorkers: numberOfWorkers
   }
   sku: {
-    Tier: sku
-    Name: skuCode
+    tier: sku
+    name: skuCode
   }
   dependsOn: []
 }
