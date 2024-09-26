@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.29.47.4906",
-      "templateHash": "7838915817328921370"
+      "templateHash": "8438516261862923800"
     }
   },
   "parameters": {
@@ -149,7 +149,7 @@
     {
       "type": "Microsoft.OperationalInsights/workspaces",
       "apiVersion": "2023-09-01",
-      "name": "logAnalyticsWorkspace",
+      "name": "[replace(variables('applicationInsightsName_var'), 'appi', 'log')]",
       "location": "westeurope",
       "tags": {},
       "properties": {
@@ -166,11 +166,11 @@
       "tags": {},
       "kind": "web",
       "properties": {
-        "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', 'logAnalyticsWorkspace')]",
+        "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', replace(variables('applicationInsightsName_var'), 'appi', 'log'))]",
         "Application_Type": "web"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.OperationalInsights/workspaces', 'logAnalyticsWorkspace')]"
+        "[resourceId('Microsoft.OperationalInsights/workspaces', replace(variables('applicationInsightsName_var'), 'appi', 'log'))]"
       ]
     },
     {

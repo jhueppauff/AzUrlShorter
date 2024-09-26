@@ -74,7 +74,7 @@ resource staticWebAppName_resource 'Microsoft.Web/staticSites@2023-12-01' = {
 }
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
-  name: 'logAnalyticsWorkspace'
+  name: replace(applicationInsightsName_var, 'appi', 'log')
   location: 'westeurope'
   tags: {}
   properties: {
