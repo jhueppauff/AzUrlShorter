@@ -2,6 +2,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -18,6 +19,8 @@ var host = new HostBuilder()
             if (toRemove is not null)
             {
                 options.Rules.Remove(toRemove);
+                LoggerFilterRule loggerFilter = new("Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider", null, LogLevel.Information, null);
+                options.Rules.Add(loggerFilter);
             }
         });
     })
