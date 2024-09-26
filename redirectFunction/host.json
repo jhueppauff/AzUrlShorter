@@ -6,17 +6,15 @@
     }
   },
   "logging": {
-    "logLevel": {
-      "default": "Information",
-      "Host.Results": "Error",
-      "Function": "Error",
-      "Host.Aggregator": "Information"
-    },
-    "applicationInsights": {
-      "samplingSettings": {
-        "isEnabled": true,
-        "excludedTypes": "Request"
+      "applicationInsights": {
+        "samplingSettings": {
+          "isEnabled": true,
+          "excludedTypes": "Request"
+        }
+      },
+      "logLevel": {
+        "default": "Warning",
+        "Function.Redirect": "Warning"
       }
     }
-  }
 }

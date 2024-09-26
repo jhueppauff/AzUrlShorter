@@ -28,7 +28,7 @@ namespace AzUrlShorter.Redirect
 
             string originHost = req.Headers.ContainsKey("cdn-origin") ? req.Headers["cdn-origin"] : req.Headers["host"];
             originHost = originHost.Split(':')[0].Trim();
-            _logger.LogInformation($"Request for domain {originHost}");
+            _logger.LogTrace($"Request for domain {originHost}");
 
             AsyncPageable<Model.ShortUrl> queryResults = tableClient.QueryAsync<Model.ShortUrl>(filter: $"PartitionKey eq '{shortUrl}' and RowKey eq '{originHost}'");
 
