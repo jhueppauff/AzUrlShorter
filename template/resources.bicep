@@ -91,6 +91,7 @@ resource applicationInsightsName 'Microsoft.Insights/components@2020-02-02' = {
   kind: 'web'
   properties: {
     WorkspaceResourceId: logAnalyticsWorkspace.id
+    IngestionMode: 'LogAnalytics'
     Application_Type: 'web'
   }
 }
