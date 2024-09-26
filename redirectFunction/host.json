@@ -6,15 +6,25 @@
     }
   },
   "logging": {
-      "applicationInsights": {
-        "samplingSettings": {
-          "isEnabled": true,
-          "excludedTypes": "Request"
-        }
-      },
-      "logLevel": {
-        "default": "Warning",
-        "Function.Redirect": "Warning"
+    "applicationInsights": {
+      "samplingSettings": {
+        "isEnabled": true,
+        "excludedTypes": "Traces;Exceptions"
       }
+    },
+    "logLevel": {
+      "default": "Warning",
+      "Function": "Information",
+      "Microsoft": "None",
+      "Host.Aggregator": "Information",
+      "Azure.Core": "Warning",
+      "Azure.Core.1": "Warning",
+      "Azure.Core.2": "Warning",
+      "Azure.Core.3": "Warning",
+      "Azure.Core.4": "Warning",
+      "Azure.Storage.Blobs": "Warning",
+      "Azure.Storage.Tables": "Warning",
+      "System.Net.Http.HttpClient": "None"
     }
+  }
 }
