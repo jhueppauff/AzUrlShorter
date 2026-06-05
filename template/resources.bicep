@@ -20,37 +20,9 @@ param skuCode string
 param workerSize string
 param workerSizeId string
 param numberOfWorkers string
-param profileName string
-param endpointName string
-param endpointName2 string
-param CDNSku object
-param profileProperties object
-param endpointProperties object
-param endpointProperties2 object
 
 var hostingPlanName_var = replace(functionName, 'func', 'plan')
 var applicationInsightsName_var = replace(functionName, 'func', 'appi')
-
-resource profileName_resource 'microsoft.cdn/profiles@2020-04-15' = {
-  name: profileName
-  location: 'Global'
-  sku: CDNSku
-  properties: profileProperties
-}
-
-resource profileName_endpointName 'microsoft.cdn/profiles/endpoints@2020-04-15' = {
-  parent: profileName_resource
-  name: endpointName
-  location: 'Global'
-  properties: endpointProperties
-}
-
-resource profileName_endpointName2 'microsoft.cdn/profiles/endpoints@2020-04-15' = {
-  parent: profileName_resource
-  name: endpointName2
-  location: 'Global'
-  properties: endpointProperties2
-}
 
 resource staticWebAppName_resource 'Microsoft.Web/staticSites@2023-12-01' = {
   name: staticWebAppName

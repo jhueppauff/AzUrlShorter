@@ -68,27 +68,6 @@
     },
     "numberOfWorkers": {
       "type": "string"
-    },
-    "profileName": {
-      "type": "string"
-    },
-    "endpointName": {
-      "type": "string"
-    },
-    "endpointName2": {
-      "type": "string"
-    },
-    "CDNSku": {
-      "type": "object"
-    },
-    "profileProperties": {
-      "type": "object"
-    },
-    "endpointProperties": {
-      "type": "object"
-    },
-    "endpointProperties2": {
-      "type": "object"
     }
   },
   "variables": {
@@ -96,34 +75,6 @@
     "applicationInsightsName_var": "[replace(parameters('functionName'), 'func', 'appi')]"
   },
   "resources": [
-    {
-      "type": "Microsoft.Cdn/profiles",
-      "apiVersion": "2020-04-15",
-      "name": "[parameters('profileName')]",
-      "location": "Global",
-      "sku": "[parameters('CDNSku')]",
-      "properties": "[parameters('profileProperties')]"
-    },
-    {
-      "type": "Microsoft.Cdn/profiles/endpoints",
-      "apiVersion": "2020-04-15",
-      "name": "[format('{0}/{1}', parameters('profileName'), parameters('endpointName'))]",
-      "location": "Global",
-      "properties": "[parameters('endpointProperties')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Cdn/profiles', parameters('profileName'))]"
-      ]
-    },
-    {
-      "type": "Microsoft.Cdn/profiles/endpoints",
-      "apiVersion": "2020-04-15",
-      "name": "[format('{0}/{1}', parameters('profileName'), parameters('endpointName2'))]",
-      "location": "Global",
-      "properties": "[parameters('endpointProperties2')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Cdn/profiles', parameters('profileName'))]"
-      ]
-    },
     {
       "type": "Microsoft.Web/staticSites",
       "apiVersion": "2023-12-01",
