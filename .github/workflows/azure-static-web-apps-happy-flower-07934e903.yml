@@ -45,6 +45,10 @@ jobs:
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
           app_location: "swa-publish/wwwroot" # Prebuilt app content path
           api_location: "swa-api" # Prebuilt API content path
+          config_file_location: "swa-publish/wwwroot"
+          output_location: ""
+          api_language: "dotnetisolated"
+          api_version: "10.0"
           skip_app_build: true
           skip_api_build: true
           production_branch: main
