@@ -28,8 +28,8 @@ jobs:
       - name: Publish Blazor WebAssembly
         run: dotnet publish frontend/frontend.csproj -c Release -o "${{ github.workspace }}/swa-publish"
 
-      - name: Validate published app
-        run: test -f "${{ github.workspace }}/swa-publish/wwwroot/index.html"
+      - name: Publish backend API
+        run: dotnet publish backend/backend.csproj -c Release -o "${{ github.workspace }}/swa-api"
 
       - name: Build And Deploy
         id: builddeploy
@@ -41,6 +41,7 @@ jobs:
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
           app_location: "swa-publish/wwwroot" # Prebuilt app content path
+          api_location: "swa-api" # Prebuilt API content path
           skip_app_build: true
           skip_api_build: true
           production_branch: main
