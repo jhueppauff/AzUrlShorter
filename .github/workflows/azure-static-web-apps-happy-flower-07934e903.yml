@@ -31,6 +31,9 @@ jobs:
       - name: Publish backend API
         run: dotnet publish backend/backend.csproj -c Release -o "${{ github.workspace }}/swa-api"
 
+      - name: Add backend project metadata
+        run: cp backend/backend.csproj "${{ github.workspace }}/swa-api/backend.csproj"
+
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
