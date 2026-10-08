@@ -10,6 +10,14 @@ export interface ShortUrl {
   timestamp?: string;
 }
 
+/** Best-effort resolutions recorded by analytics over the last 30 days. */
+export interface LinkUsage {
+  partitionKey: string;
+  rowKey: string;
+  uses: number;
+  lastUsed?: string;
+}
+
 /** A configuration entry; used for the list of selectable domains. */
 export interface ConfigurationEntry {
   partitionKey: string;

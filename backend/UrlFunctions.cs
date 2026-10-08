@@ -20,11 +20,13 @@ namespace Shorter.Backend
 
         private readonly ILogger<UrlFunctions> _logger;
         private readonly TableClientProvider _tables;
+        private readonly LinkUsageProvider _usage;
 
-        public UrlFunctions(ILogger<UrlFunctions> logger, TableClientProvider tables)
+        public UrlFunctions(ILogger<UrlFunctions> logger, TableClientProvider tables, LinkUsageProvider usage)
         {
             _logger = logger;
             _tables = tables;
+            _usage = usage;
         }
 
         /// <summary>
@@ -126,6 +128,43 @@ namespace Shorter.Backend
             }
 
             return new OkObjectResult(list);
+        }
+
+        [Function(nameof(GetLinkUsage))]
+        public async Task<IActionResult> GetLinkUsage(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Links/Usage")] HttpRequest req)
+        {
+            req.HttpContext.Response.Headers.CacheControl = "no-store";
+            string userName = GetUserName(req);
+            if (string.IsNullOrEmpty(userName))
+            {
+                return Unauthenticated(nameof(GetLinkUsage));
+            }
+
+            try
+            {
+                using var timeout = System.Threading.CancellationTokenSource.CreateLinkedTokenSource(req.HttpContext.RequestAborted);
+                timeout.CancelAfter(TimeSpan.FromSeconds(30));
+                TableClient tableClient = _tables.GetTableClient(ShortUrlTable);
+                var links = new List<ShortUrl>();
+                await foreach (ShortUrl link in tableClient.QueryAsync<ShortUrl>(
+                    filter: $"UserPrincipleName eq '{EscapeODataLiteral(userName)}'",
+                    select: new[] { "PartitionKey", "RowKey" },
+                    cancellationToken: timeout.Token))
+                {
+                    links.Add(link);
+                }
+
+                return new OkObjectResult(await _usage.GetUsageAsync(links, timeout.Token));
+            }
+            catch (Exception)
+            {
+                _logger.LogWarning("Link usage is unavailable; check managed API storage and analytics configuration and workspace access.");
+                return new ObjectResult("Usage is temporarily unavailable. Check the managed API storage and Analytics application settings and workspace reader access, then retry.")
+                {
+                    StatusCode = StatusCodes.Status503ServiceUnavailable,
+                };
+            }
         }
 
         [Function(nameof(DeleteLink))]

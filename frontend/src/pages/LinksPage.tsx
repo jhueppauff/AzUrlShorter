@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ApiError, deleteLink, getLinks } from '../api/client';
+import { ApiError, deleteLink, getLinks, getLinksUsage } from '../api/client';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { CopyButton } from '../components/CopyButton';
 import { EmptyState } from '../components/EmptyState';
@@ -9,7 +9,7 @@ import { LinkListSkeleton } from '../components/LinkListSkeleton';
 import { useAuth } from '../auth/useAuth';
 import { useToast } from '../toast/useToast';
 import { buildShortLink, formatTimestamp, safeExternalUrl } from '../lib/url';
-import type { ShortUrl } from '../types';
+import type { LinkUsage, ShortUrl } from '../types';
 
 type SortOption = 'newest' | 'key' | 'domain';
 
@@ -34,6 +34,9 @@ export function LinksPage() {
   const [sort, setSort] = useState<SortOption>('newest');
   const [pendingDelete, setPendingDelete] = useState<ShortUrl | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [usage, setUsage] = useState<LinkUsage[]>([]);
+  const [usageStatus, setUsageStatus] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [usageError, setUsageError] = useState('');
 
   const handleApiError = useCallback(
     (error: unknown, fallback: string) => {
@@ -73,15 +76,41 @@ export function LinksPage() {
     [handleApiError],
   );
 
+  const loadUsage = useCallback(
+    async (signal?: AbortSignal) => {
+      setUsageStatus('loading');
+
+      try {
+        const result = await getLinksUsage(signal);
+
+        if (!signal?.aborted) {
+          setUsage(result);
+          setUsageStatus('ready');
+        }
+      } catch (error) {
+        if (!signal?.aborted) {
+          setUsageError(handleApiError(error, 'Link usage could not be loaded.'));
+          setUsageStatus('error');
+        }
+      }
+    },
+    [handleApiError],
+  );
+
   useEffect(() => {
     const controller = new AbortController();
 
     void (async () => {
-      await load(controller.signal);
+      await Promise.all([load(controller.signal), loadUsage(controller.signal)]);
     })();
 
     return () => controller.abort();
-  }, [load]);
+  }, [load, loadUsage]);
+
+  const usageByLink = useMemo(
+    () => new Map(usage.map((item) => [JSON.stringify([item.rowKey, item.partitionKey]), item])),
+    [usage],
+  );
 
   const visibleLinks = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -144,8 +173,11 @@ export function LinksPage() {
           <button
             type="button"
             className="btn btn--secondary"
-            onClick={() => void load()}
-            disabled={status === 'loading'}
+            onClick={() => {
+              void load();
+              void loadUsage();
+            }}
+            disabled={status === 'loading' || usageStatus === 'loading'}
           >
             <Icon name="refresh" size={16} />
             Refresh
@@ -156,6 +188,28 @@ export function LinksPage() {
           </Link>
         </div>
       </header>
+
+      {status === 'ready' && links.length > 0 && (
+        <div className="page-header__subtitle" role="status">
+          <p>
+            Usage shows approximate resolutions over the last 30 days, not unique visitors.
+            Cached redirects are not counted, and recent activity may take a few minutes to appear.
+          </p>
+          {usageStatus === 'loading' && <p>Loading usage…</p>}
+          {usageStatus === 'error' && (
+            <p>
+              Usage unavailable: {usageError}{' '}
+              <button
+                type="button"
+                className="btn btn--secondary btn--small"
+                onClick={() => void loadUsage()}
+              >
+                Retry usage
+              </button>
+            </p>
+          )}
+        </div>
+      )}
 
       {status === 'ready' && links.length > 0 && (
         <div className="list-toolbar">
@@ -232,6 +286,7 @@ export function LinksPage() {
           {visibleLinks.map((link) => {
             const shortLink = buildShortLink(link.rowKey, link.partitionKey);
             const target = safeExternalUrl(link.url);
+            const linkUsage = usageByLink.get(JSON.stringify([link.rowKey, link.partitionKey]));
 
             return (
               <li className="link-card" key={linkId(link)}>
@@ -258,6 +313,20 @@ export function LinksPage() {
                 </p>
 
                 <p className="link-card__meta">Last updated {formatTimestamp(link.timestamp)}</p>
+                <p className="link-card__meta">
+                  Usage (30 days):{' '}
+                  {usageStatus === 'loading'
+                    ? 'Loading…'
+                    : usageStatus === 'ready' && linkUsage
+                      ? `${linkUsage.uses.toLocaleString()} recorded resolutions`
+                      : 'Unavailable'}
+                </p>
+                {usageStatus === 'ready' && linkUsage && (
+                  <p className="link-card__meta">
+                    Last used (30 days):{' '}
+                    {linkUsage.lastUsed ? formatTimestamp(linkUsage.lastUsed) : 'No recorded use'}
+                  </p>
+                )}
 
                 <div className="link-card__actions">
                   <CopyButton value={shortLink} />

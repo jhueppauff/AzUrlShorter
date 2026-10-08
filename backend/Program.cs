@@ -4,7 +4,11 @@ using Shorter.Backend;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
-    .ConfigureServices(services => services.AddSingleton<TableClientProvider>())
+    .ConfigureServices(services =>
+    {
+        services.AddSingleton<TableClientProvider>();
+        services.AddSingleton<LinkUsageProvider>();
+    })
     .Build();
 
 host.Run();

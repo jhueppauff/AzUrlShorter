@@ -1,4 +1,4 @@
-import type { ClientPrincipal, ConfigurationEntry, ShortUrl } from '../types';
+import type { ClientPrincipal, ConfigurationEntry, LinkUsage, ShortUrl } from '../types';
 
 /**
  * Base address of the API. Defaults to the current origin so the app works with
@@ -118,6 +118,33 @@ export async function getDomains(signal?: AbortSignal): Promise<ConfigurationEnt
 export async function getLinks(signal?: AbortSignal): Promise<ShortUrl[]> {
   const data = await requestJson<unknown>('/api/Links', { signal });
   return Array.isArray(data) ? data.map(toShortUrl) : [];
+}
+
+/** Reads usage separately so analytics never delays loading or managing links. */
+export async function getLinksUsage(signal?: AbortSignal): Promise<LinkUsage[]> {
+  const data = await requestJson<unknown>('/api/Links/Usage', { signal });
+
+  if (!Array.isArray(data)) {
+    throw new ApiError('The server returned unexpected usage data.', 502);
+  }
+
+  return data.map((raw: unknown) => {
+    const source = (raw ?? {}) as Record<string, unknown>;
+    const uses = source.uses ?? source.Uses;
+    const partitionKey = readString(source, 'partitionKey');
+    const rowKey = readString(source, 'rowKey');
+
+    if (!partitionKey || !rowKey || typeof uses !== 'number' || !Number.isFinite(uses) || uses < 0) {
+      throw new ApiError('The server returned unexpected usage data.', 502);
+    }
+
+    return {
+      partitionKey,
+      rowKey,
+      uses,
+      lastUsed: readString(source, 'lastUsed') || undefined,
+    };
+  });
 }
 
 /** Creates a new short link. */
