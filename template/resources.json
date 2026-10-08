@@ -98,6 +98,18 @@
       }
     },
     {
+      "type": "Microsoft.Web/staticSites/config",
+      "apiVersion": "2023-12-01",
+      "name": "[format('{0}/{1}', parameters('staticWebAppName'), 'appsettings')]",
+      "properties": {
+        "AzureStorageConnection": "[format('DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1};EndpointSuffix=core.windows.net', parameters('storageAccountName'), listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2019-06-01').keys[0].value)]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/staticSites', parameters('staticWebAppName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+      ]
+    },
+    {
       "type": "Microsoft.OperationalInsights/workspaces",
       "apiVersion": "2023-09-01",
       "name": "[replace(variables('applicationInsightsName_var'), 'appi', 'log')]",

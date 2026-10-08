@@ -45,6 +45,17 @@ resource staticWebAppName_resource 'Microsoft.Web/staticSites@2023-12-01' = {
   }
 }
 
+// The managed API reads short links and domains from table storage. Without this
+// setting every /api/* call fails, so it has to live on the static site itself --
+// the connection string on the redirect function app is not visible to it.
+resource staticWebAppName_appsettings 'Microsoft.Web/staticSites/config@2023-12-01' = {
+  parent: staticWebAppName_resource
+  name: 'appsettings'
+  properties: {
+    AzureStorageConnection: 'DefaultEndpointsProtocol=https;AccountName=${storageAccountName};AccountKey=${listKeys(storageAccountName_resource.id, '2019-06-01').keys[0].value};EndpointSuffix=core.windows.net'
+  }
+}
+
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
   name: replace(applicationInsightsName_var, 'appi', 'log')
   location: 'westeurope'

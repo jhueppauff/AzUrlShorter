@@ -30,3 +30,27 @@ assemblies.
 
 `redirectFunction/` is deployed to a standalone Azure Function App and is not
 bound by that restriction.
+
+## Managed API storage configuration
+
+The managed API reads and writes the `shorturls` and `configuration` tables using
+the `AzureStorageConnection` application setting. This setting has to be present on
+the **static site itself** — the connection string configured on the redirect
+function app is a separate resource and is not visible to the managed API. When it
+is missing, every `/api/*` call returns HTTP 500 with
+`The API is missing its 'AzureStorageConnection' application setting.`
+
+[`template/resources.json`](template/resources.json) now provisions it, so a
+deployment of the ARM template configures the production environment. Preview
+environments created for pull requests do **not** inherit production application
+settings and have to be configured separately:
+
+```bash
+az staticwebapp appsettings set \
+  --name <static-web-app-name> \
+  --environment-name <environment-name> \
+  --setting-names "AzureStorageConnection=<connection-string>"
+```
+
+Use `az staticwebapp environment list --name <static-web-app-name>` to find the
+name of a preview environment.

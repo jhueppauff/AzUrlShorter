@@ -15,11 +15,16 @@ namespace Shorter.Backend
 {
     public class UrlFunctions
     {
-        private readonly ILogger<UrlFunctions> _logger;
+        private const string ShortUrlTable = "shorturls";
+        private const string ConfigurationTable = "configuration";
 
-        public UrlFunctions(ILogger<UrlFunctions> logger)
+        private readonly ILogger<UrlFunctions> _logger;
+        private readonly TableClientProvider _tables;
+
+        public UrlFunctions(ILogger<UrlFunctions> logger, TableClientProvider tables)
         {
             _logger = logger;
+            _tables = tables;
         }
 
         /// <summary>
@@ -41,18 +46,46 @@ namespace Shorter.Backend
             Uri.TryCreate(url, UriKind.Absolute, out Uri parsed)
             && (parsed.Scheme == Uri.UriSchemeHttp || parsed.Scheme == Uri.UriSchemeHttps);
 
+        /// <summary>
+        /// Returns an explanatory error when storage is not configured, so the cause is
+        /// visible in the UI instead of appearing as an unexplained HTTP 500.
+        /// </summary>
+        private IActionResult CheckStorageConfigured(string functionName)
+        {
+            if (_tables.IsConfigured)
+            {
+                return null;
+            }
+
+            _logger.LogError(
+                "{Function} cannot run: neither the 'AzureStorageConnection' nor the 'AzureWebJobsStorage' application setting is present.",
+                functionName);
+
+            return new ObjectResult("The API is missing its 'AzureStorageConnection' application setting.")
+            {
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
+        }
+
+        private IActionResult Unauthenticated(string functionName)
+        {
+            _logger.LogWarning("Rejected {Function}: the request carries no Static Web Apps principal.", functionName);
+            return new UnauthorizedResult();
+        }
+
         [Function(nameof(GetDomains))]
         public async Task<IActionResult> GetDomains(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Domains")] HttpRequest req, [TableInput("configuration", Connection = "AzureStorageConnection")] TableClient tableClient)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Domains")] HttpRequest req)
         {
-            #region Null Checks
-            if (tableClient == null)
-            {
-                throw new ArgumentNullException(nameof(tableClient));
-            }
-            #endregion
+            IActionResult misconfigured = CheckStorageConfigured(nameof(GetDomains));
 
-            AsyncPageable<Configuration> queryResults = tableClient.QueryAsync<Configuration>(filter: $"PartitionKey eq 'Domains'");
+            if (misconfigured != null)
+            {
+                return misconfigured;
+            }
+
+            TableClient tableClient = _tables.GetTableClient(ConfigurationTable);
+            AsyncPageable<Configuration> queryResults = tableClient.QueryAsync<Configuration>(filter: "PartitionKey eq 'Domains'");
             List<Configuration> list = new List<Configuration>();
 
             await foreach (Configuration entity in queryResults)
@@ -67,26 +100,24 @@ namespace Shorter.Backend
 
         [Function(nameof(GetUserLinks))]
         public async Task<IActionResult> GetUserLinks(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Links")] HttpRequest req,
-            [TableInput("shorturls", Connection = "AzureStorageConnection")] TableClient tableClient)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Links")] HttpRequest req)
         {
-            #region Null Checks
-            if (tableClient == null)
+            IActionResult misconfigured = CheckStorageConfigured(nameof(GetUserLinks));
+
+            if (misconfigured != null)
             {
-                throw new ArgumentNullException(nameof(tableClient));
+                return misconfigured;
             }
-            #endregion
 
             string userName = GetUserName(req);
 
             if (string.IsNullOrEmpty(userName))
             {
-                _logger.LogWarning("Rejected {Function}: the request carries no Static Web Apps principal.", nameof(GetUserLinks));
-                return new UnauthorizedResult();
+                return Unauthenticated(nameof(GetUserLinks));
             }
 
+            TableClient tableClient = _tables.GetTableClient(ShortUrlTable);
             AsyncPageable<ShortUrl> queryResults = tableClient.QueryAsync<ShortUrl>(filter: $"UserPrincipleName eq '{EscapeODataLiteral(userName)}'");
-
             List<ShortUrl> list = new List<ShortUrl>();
 
             await foreach (ShortUrl entity in queryResults)
@@ -99,24 +130,23 @@ namespace Shorter.Backend
 
         [Function(nameof(DeleteLink))]
         public async Task<IActionResult> DeleteLink(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "Links/{partitionKey}/{rowKey}")] HttpRequest req, string partitionKey, string rowKey,
-            [TableInput("shorturls", Connection = "AzureStorageConnection")] TableClient tableClient)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "Links/{partitionKey}/{rowKey}")] HttpRequest req, string partitionKey, string rowKey)
         {
-            #region Null Checks
-            if (tableClient == null)
+            IActionResult misconfigured = CheckStorageConfigured(nameof(DeleteLink));
+
+            if (misconfigured != null)
             {
-                throw new ArgumentNullException(nameof(tableClient));
+                return misconfigured;
             }
-            #endregion
 
             string userName = GetUserName(req);
 
             if (string.IsNullOrEmpty(userName))
             {
-                _logger.LogWarning("Rejected {Function}: the request carries no Static Web Apps principal.", nameof(DeleteLink));
-                return new UnauthorizedResult();
+                return Unauthenticated(nameof(DeleteLink));
             }
 
+            TableClient tableClient = _tables.GetTableClient(ShortUrlTable);
             ShortUrl existing;
 
             try
@@ -141,14 +171,21 @@ namespace Shorter.Backend
         }
 
         [Function(nameof(IngestShortLink))]
-        public async Task<IngestShortLinkOutput> IngestShortLink([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Links")] HttpRequest req)
+        public async Task<IActionResult> IngestShortLink(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Links")] HttpRequest req)
         {
+            IActionResult misconfigured = CheckStorageConfigured(nameof(IngestShortLink));
+
+            if (misconfigured != null)
+            {
+                return misconfigured;
+            }
+
             string userName = GetUserName(req);
 
             if (string.IsNullOrEmpty(userName))
             {
-                _logger.LogWarning("Rejected {Function}: the request carries no Static Web Apps principal.", nameof(IngestShortLink));
-                return new IngestShortLinkOutput { Result = new UnauthorizedResult() };
+                return Unauthenticated(nameof(IngestShortLink));
             }
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
@@ -169,10 +206,7 @@ namespace Shorter.Backend
                 || !IsSafeTargetUrl(data.Url))
             {
                 _logger.LogWarning("Rejected {Function}: the payload is not a valid short link.", nameof(IngestShortLink));
-                return new IngestShortLinkOutput
-                {
-                    Result = new BadRequestObjectResult("partitionKey, rowKey and an http(s) url are required."),
-                };
+                return new BadRequestObjectResult("A short key, a domain and an http(s) url are required.");
             }
 
             data.UserPrincipleName = userName;
@@ -181,7 +215,19 @@ namespace Shorter.Backend
             data.ETag = default;
             data.Timestamp = null;
 
-            return new IngestShortLinkOutput { Entity = data, Result = new OkResult() };
+            TableClient tableClient = _tables.GetTableClient(ShortUrlTable);
+
+            try
+            {
+                // Add rather than upsert so a short key can never overwrite someone else's link.
+                await tableClient.AddEntityAsync(data);
+            }
+            catch (RequestFailedException ex) when (ex.Status == 409)
+            {
+                return new ConflictObjectResult("That short link is already taken. Pick a different short key.");
+            }
+
+            return new OkResult();
         }
     }
 }
