@@ -32,13 +32,24 @@ export function withScheme(value: string): string {
   return `https://${trimmed}`;
 }
 
-/** Builds the public short link for a domain and key. */
+/**
+ * Builds the public short link for a domain and key. The URL is assembled with
+ * the `URL` API and re-checked with {@link safeExternalUrl}, so the result is
+ * always a plain `https` URL and is safe to use as an `href`.
+ */
 export function buildShortLink(domain: string, key: string): string {
   if (!domain || !key) {
     return '';
   }
 
-  return `https://${domain}/${encodeURIComponent(key)}`;
+  try {
+    const url = new URL(`https://${domain}/`);
+    url.pathname = `/${encodeURIComponent(key)}`;
+
+    return safeExternalUrl(url.toString()) ?? '';
+  } catch {
+    return '';
+  }
 }
 
 /** Short links may only contain characters that survive a URL path segment. */
