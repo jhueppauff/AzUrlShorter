@@ -26,6 +26,31 @@ interface CreatedLink {
   target: string;
 }
 
+function validateFields(url: string, domain: string, key: string): FieldErrors {
+  const errors: FieldErrors = {};
+  const normalizedUrl = withScheme(url);
+
+  if (!normalizedUrl) {
+    errors.url = 'Enter the address the short link should point to.';
+  } else if (!safeExternalUrl(normalizedUrl)) {
+    errors.url = 'Enter a valid http:// or https:// address.';
+  }
+
+  if (!domain) {
+    errors.domain = 'Choose a domain.';
+  }
+
+  if (!key) {
+    errors.key = 'Enter a short key, or generate one.';
+  } else if (key.length > SHORT_KEY_MAX_LENGTH) {
+    errors.key = `Use at most ${SHORT_KEY_MAX_LENGTH} characters.`;
+  } else if (!SHORT_KEY_PATTERN.test(key)) {
+    errors.key = 'Use letters, numbers, hyphens and underscores only.';
+  }
+
+  return errors;
+}
+
 export function CreateLinkPage() {
   // The destination can be pre-filled through `?url=` so the app works as a
   // bookmarklet target.
@@ -41,7 +66,7 @@ export function CreateLinkPage() {
   const [domainsState, setDomainsState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [existingLinks, setExistingLinks] = useState<ShortUrl[]>([]);
 
-  const [errors, setErrors] = useState<FieldErrors>({});
+  const [showErrors, setShowErrors] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [created, setCreated] = useState<CreatedLink | null>(null);
 
@@ -108,36 +133,17 @@ export function CreateLinkPage() {
 
   const preview = buildShortLink(domain, trimmedKey);
 
-  const validate = (): FieldErrors => {
-    const next: FieldErrors = {};
-    const normalizedUrl = withScheme(url);
-
-    if (!normalizedUrl) {
-      next.url = 'Enter the address the short link should point to.';
-    } else if (!safeExternalUrl(normalizedUrl)) {
-      next.url = 'Enter a valid http:// or https:// address.';
-    }
-
-    if (!domain) {
-      next.domain = 'Choose a domain.';
-    }
-
-    if (!trimmedKey) {
-      next.key = 'Enter a short key, or generate one.';
-    } else if (trimmedKey.length > SHORT_KEY_MAX_LENGTH) {
-      next.key = `Use at most ${SHORT_KEY_MAX_LENGTH} characters.`;
-    } else if (!SHORT_KEY_PATTERN.test(trimmedKey)) {
-      next.key = 'Use letters, numbers, hyphens and underscores only.';
-    }
-
-    return next;
-  };
+  // Validation runs on every change, but messages stay hidden until the first
+  // submit so the form does not shout at the user while they are still typing.
+  const validation = useMemo(
+    () => validateFields(url, domain, trimmedKey),
+    [domain, trimmedKey, url],
+  );
+  const errors: FieldErrors = showErrors ? validation : {};
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    const validation = validate();
-    setErrors(validation);
+    setShowErrors(true);
 
     if (Object.keys(validation).length > 0) {
       return;
@@ -159,6 +165,7 @@ export function CreateLinkPage() {
       ]);
       setUrl('');
       setKey('');
+      setShowErrors(false);
       notify('Short link created.', 'success');
     } catch (error) {
       handleApiError(error, 'The short link could not be created.');
@@ -169,7 +176,7 @@ export function CreateLinkPage() {
 
   const startOver = () => {
     setCreated(null);
-    setErrors({});
+    setShowErrors(false);
     urlInputRef.current?.focus();
   };
 

@@ -641,18 +641,6 @@ a.btn:hover {
   overflow-wrap: anywhere;
 }
 
-.badge {
-  display: inline-flex;
-  align-items: center;
-  flex: none;
-  padding: 0.15rem 0.6rem;
-  border-radius: 999px;
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
 .link-card__target {
   display: flex;
   gap: 0.4rem;

@@ -244,7 +244,6 @@ export function LinksPage() {
                   >
                     {link.rowKey}/{link.partitionKey}
                   </a>
-                  <span className="badge">{link.rowKey}</span>
                 </div>
 
                 <p className="link-card__target">
@@ -258,7 +257,7 @@ export function LinksPage() {
                   )}
                 </p>
 
-                <p className="link-card__meta">Created {formatTimestamp(link.timestamp)}</p>
+                <p className="link-card__meta">Last updated {formatTimestamp(link.timestamp)}</p>
 
                 <div className="link-card__actions">
                   <CopyButton value={shortLink} />
