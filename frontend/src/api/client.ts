@@ -50,6 +50,28 @@ function toConfigurationEntry(raw: unknown): ConfigurationEntry {
   };
 }
 
+async function readErrorMessage(response: Response): Promise<string | undefined> {
+  // The API reports actionable failures (missing configuration, a taken short key)
+  // as the response body, so show that instead of a bare status code.
+  try {
+    const text = (await response.text()).trim();
+
+    if (!text) {
+      return undefined;
+    }
+
+    if (text.startsWith('{') || text.startsWith('[')) {
+      const parsed: unknown = JSON.parse(text);
+      const detail = (parsed as Record<string, unknown>)?.detail ?? (parsed as Record<string, unknown>)?.message;
+      return typeof detail === 'string' && detail.trim() ? detail.trim() : undefined;
+    }
+
+    return text.length > 300 ? undefined : text;
+  } catch {
+    return undefined;
+  }
+}
+
 async function request(path: string, init?: RequestInit): Promise<Response> {
   let response: Response;
 
@@ -64,12 +86,13 @@ async function request(path: string, init?: RequestInit): Promise<Response> {
   }
 
   if (!response.ok) {
-    throw new ApiError(
-      response.status === 401 || response.status === 403
-        ? 'Your session has expired. Please sign in again.'
-        : `The server responded with ${response.status}.`,
-      response.status,
-    );
+    if (response.status === 401 || response.status === 403) {
+      throw new ApiError('Your session has expired. Please sign in again.', response.status);
+    }
+
+    const detail = await readErrorMessage(response);
+
+    throw new ApiError(detail ?? `The server responded with ${response.status}.`, response.status);
   }
 
   return response;

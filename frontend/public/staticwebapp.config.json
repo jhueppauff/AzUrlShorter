@@ -11,13 +11,7 @@
   ],
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/assets/*", "/favicon.ico", "/robots.txt"]
-  },
-  "responseOverrides": {
-    "401": {
-      "rewrite": "/index.html",
-      "statusCode": 200
-    }
+    "exclude": ["/api/*", "/assets/*", "/favicon.ico", "/robots.txt"]
   },
   "globalHeaders": {
     "X-Content-Type-Options": "nosniff",
