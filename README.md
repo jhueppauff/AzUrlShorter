@@ -54,3 +54,53 @@ az staticwebapp appsettings set \
 
 Use `az staticwebapp environment list --name <static-web-app-name>` to find the
 name of a preview environment.
+
+## Link usage
+
+Successful short-link resolutions emit a `ShortLinkUsed` custom event to the
+redirect function's **existing Application Insights resource**. Missing links do
+not emit this event. The event contains only the stored `shortKey` and `domain`;
+it does not add visitor identifiers, IP addresses, referrers, or destination URLs.
+Existing Application Insights request telemetry is unchanged.
+
+No new services, dependencies, or Table Storage writes are required. The existing
+SDK buffers and sends events in the background: the redirect does not wait for
+telemetry delivery or flush the buffer. Recording adds only local telemetry
+processing; telemetry failures do not prevent the redirect. The redirect function
+must have its existing `APPLICATIONINSIGHTS_CONNECTION_STRING` setting configured
+(the deployment template already supplies it).
+
+Open that Application Insights resource's **Logs** view and run this query for
+per-link usage over the last 30 days:
+
+```kusto
+customEvents
+| where timestamp >= ago(30d)
+| where name == "ShortLinkUsed"
+| extend domain = tostring(customDimensions.domain),
+         shortKey = tostring(customDimensions.shortKey)
+| summarize Uses = sum(itemCount), LastUsed = max(timestamp) by domain, shortKey
+| order by Uses desc
+```
+
+For daily usage of one link, replace the example domain and key below:
+
+```kusto
+customEvents
+| where timestamp >= ago(30d)
+| where name == "ShortLinkUsed"
+| where tostring(customDimensions.domain) == "example.com"
+    and tostring(customDimensions.shortKey) == "abc123"
+| summarize Uses = sum(itemCount) by bin(timestamp, 1d)
+| order by timestamp asc
+```
+
+Counts represent resolutions that reach the function, **not unique visitors or
+guaranteed click totals**. Existing permanent redirects remain unchanged, so
+browser/CDN-cached redirects are not counted; bots and repeated requests are.
+Telemetry is best-effort and eventually visible: sampling (accounted for with
+`sum(itemCount)`), ingestion limits, retention, or process termination can make
+counts approximate. Tracking starts with this deployment; historical usage cannot
+be recovered. Events use the existing telemetry ingestion allowance and may
+increase Application Insights costs. Queries require access to that resource;
+usage is not exposed through the public redirect endpoint or the frontend.

@@ -7,10 +7,12 @@ using Azure.Data.Tables;
 using Azure;
 using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.ApplicationInsights;
+using System;
 
 namespace AzUrlShorter.Redirect
 {
-    public class Main(ILogger<Main> logger)
+    public class Main(ILogger<Main> logger, TelemetryClient telemetry)
     {
         private readonly ILogger<Main> _logger = logger;
 
@@ -44,7 +46,23 @@ namespace AzUrlShorter.Redirect
                 return new RedirectResult("https://hueppauff.com/notfound", true);
             }
 
-            return new RedirectResult(shortUrls.FirstOrDefault().Url, true);
+            Model.ShortUrl link = shortUrls.First();
+
+            try
+            {
+                // The existing SDK buffers telemetry; never flush or await delivery here.
+                telemetry.TrackEvent("ShortLinkUsed", new Dictionary<string, string>
+                {
+                    ["shortKey"] = link.PartitionKey,
+                    ["domain"] = link.RowKey
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Could not record link usage.");
+            }
+
+            return new RedirectResult(link.Url, true);
         }
     }
 }
