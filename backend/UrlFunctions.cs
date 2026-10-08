@@ -149,7 +149,7 @@ namespace Shorter.Backend
                 var links = new List<ShortUrl>();
                 await foreach (ShortUrl link in tableClient.QueryAsync<ShortUrl>(
                     filter: $"UserPrincipleName eq '{EscapeODataLiteral(userName)}'",
-                    select: new[] { "PartitionKey", "RowKey" },
+                    select: new[] { "PartitionKey", "RowKey", "TrackingId", "Timestamp" },
                     cancellationToken: timeout.Token))
                 {
                     links.Add(link);
@@ -249,6 +249,7 @@ namespace Shorter.Backend
             }
 
             data.UserPrincipleName = userName;
+            data.TrackingId = Guid.NewGuid().ToString("N");
 
             // Never trust client supplied concurrency metadata for a new entity.
             data.ETag = default;

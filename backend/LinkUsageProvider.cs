@@ -89,17 +89,23 @@ namespace Shorter.Backend
 
             // JSON string literals safely escape quotes, backslashes and control characters
             // in stored keys, including links created through a crafted API request.
-            string pairs = string.Join(",\n", owned.Select(pair =>
-                $"{JsonSerializer.Serialize(pair.PartitionKey)}, {JsonSerializer.Serialize(pair.RowKey)}"));
+            string pairs = string.Join(",\n", links.Select(link =>
+                $"{JsonSerializer.Serialize(link.PartitionKey)}, {JsonSerializer.Serialize(link.RowKey)}, "
+                + $"{JsonSerializer.Serialize(link.TrackingId ?? "")}, "
+                + (link.Timestamp.HasValue
+                    ? $"datetime({link.Timestamp.Value.UtcDateTime.ToString("O", CultureInfo.InvariantCulture)})"
+                    : "datetime(null)")));
             string query = $"""
-                let OwnedLinks = datatable(shortKey:string, domain:string) [
+                let OwnedLinks = datatable(shortKey:string, domain:string, trackingId:string, createdAt:datetime) [
                 {pairs}
                 ];
                 AppEvents
                 | where TimeGenerated >= ago(30d) and TimeGenerated <= now()
                 | where Name == "ShortLinkUsed"
-                | extend shortKey = tostring(Properties.shortKey), domain = tostring(Properties.domain)
-                | join kind=inner (OwnedLinks) on shortKey, domain
+                | extend shortKey = tostring(Properties.shortKey), domain = tostring(Properties.domain),
+                         trackingId = tostring(Properties.trackingId)
+                | join kind=inner (OwnedLinks) on shortKey, domain, trackingId
+                | where isnotnull(createdAt) and TimeGenerated >= createdAt
                 | summarize uses = sum(ItemCount), lastUsed = max(TimeGenerated) by shortKey, domain
                 | project shortKey, domain, uses, lastUsed
                 """;

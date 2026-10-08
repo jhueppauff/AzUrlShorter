@@ -60,11 +60,12 @@ name of a preview environment.
 
 Successful short-link resolutions emit a `ShortLinkUsed` custom event to the
 redirect function's **existing Application Insights resource**. Missing links do
-not emit this event. The event contains only the stored `shortKey` and `domain`;
+not emit this event. The event contains only the stored `shortKey`, `domain`, and
+link-generation `trackingId` (when present);
 it does not add visitor identifiers, IP addresses, referrers, or destination URLs.
 Existing Application Insights request telemetry is unchanged.
 
-No new services, dependencies, or Table Storage writes are required. The existing
+No new services, dependencies, or additional Table Storage writes are required. The existing
 SDK buffers and sends events in the background: the redirect does not wait for
 telemetry delivery or flush the buffer. Recording adds only local telemetry
 processing; telemetry failures do not prevent the redirect. The redirect function
@@ -79,12 +80,14 @@ customEvents
 | where timestamp >= ago(30d)
 | where name == "ShortLinkUsed"
 | extend domain = tostring(customDimensions.domain),
-         shortKey = tostring(customDimensions.shortKey)
-| summarize Uses = sum(itemCount), LastUsed = max(timestamp) by domain, shortKey
+         shortKey = tostring(customDimensions.shortKey),
+         trackingId = tostring(customDimensions.trackingId)
+| summarize Uses = sum(itemCount), LastUsed = max(timestamp) by domain, shortKey, trackingId
 | order by Uses desc
 ```
 
-For daily usage of one link, replace the example domain and key below:
+For daily usage of one link generation, replace the example domain, key, and
+stored tracking ID below (use an empty string for legacy links):
 
 ```kusto
 customEvents
@@ -92,6 +95,7 @@ customEvents
 | where name == "ShortLinkUsed"
 | where tostring(customDimensions.domain) == "example.com"
     and tostring(customDimensions.shortKey) == "abc123"
+    and tostring(customDimensions.trackingId) == "<stored-tracking-id>"
 | summarize Uses = sum(itemCount) by bin(timestamp, 1d)
 | order by timestamp asc
 ```
@@ -110,8 +114,9 @@ redirect endpoint.
 
 The signed-in frontend can call `GET /api/Links/Usage`. The API uses the same
 Static Web Apps identity as `GET /api/Links`, loads only that user's owned links
-from storage, and queries only those `(shortKey, domain)` pairs in one workspace
-query. It returns the fixed last **30 days** as:
+from storage, and queries only those `(shortKey, domain, trackingId)` generations
+in one workspace query, excluding events before the stored entity's timestamp.
+It returns the fixed last **30 days** as:
 
 ```json
 [
@@ -134,6 +139,15 @@ eventually consistent, and exclude browser/CDN-cached redirects as described abo
 
 **My short links** displays the 30-day resolution count and last-used date with
 independent loading and retry; link management remains unaffected.
+
+New links receive a server-generated immutable generation ID on creation, so
+reusing a deleted key/domain never exposes the previous generation's usage,
+including in-flight redirect events. Existing links without an ID match only
+legacy events without an ID, bounded by the stored Azure Table creation/last
+modification timestamp. Old key/domain-only events cannot recover generations
+precisely; this boundary prevents historical takeover but may omit earlier usage
+after a legacy entity modification. Entities missing their timestamp expose no
+history. Generation IDs are not included in the frontend API responses.
 
 Use the **existing Log Analytics workspace linked to the redirect function's
 Application Insights**; do not create another workspace or telemetry service.
@@ -164,4 +178,5 @@ IDs must be GUIDs. Configure preview environments separately using
 For local Functions development, the same names can be placed in the `Values`
 section of your uncommitted `backend/local.settings.json`. Keep secrets out of
 source control, frontend bundles, logs, and screenshots. No new runtime
-dependencies, Azure services, or redirect-path changes are required.
+dependencies or Azure services are required; redirects retain their existing
+buffered, nonblocking telemetry behavior.

@@ -14,5 +14,9 @@ namespace backend.Model
         public string Url { get; set; }
 
         public string UserPrincipleName { get; set; }
+
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public string TrackingId { get; set; }
     }
 }

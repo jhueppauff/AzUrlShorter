@@ -51,11 +51,16 @@ namespace AzUrlShorter.Redirect
             try
             {
                 // The existing SDK buffers telemetry; never flush or await delivery here.
-                telemetry.TrackEvent("ShortLinkUsed", new Dictionary<string, string>
+                var properties = new Dictionary<string, string>
                 {
                     ["shortKey"] = link.PartitionKey,
                     ["domain"] = link.RowKey
-                });
+                };
+                if (!string.IsNullOrEmpty(link.TrackingId))
+                {
+                    properties["trackingId"] = link.TrackingId;
+                }
+                telemetry.TrackEvent("ShortLinkUsed", properties);
             }
             catch (Exception ex)
             {

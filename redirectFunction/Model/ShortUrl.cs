@@ -7,6 +7,7 @@ namespace AzUrlShorter.Redirect.Model
     public class ShortUrl : ITableEntity
     {
         public string Url { get; set; }
+        public string? TrackingId { get; set; }
 
         public string PartitionKey { get; set; }
         public string RowKey { get; set; }
